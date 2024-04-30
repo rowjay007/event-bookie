@@ -1,0 +1,5 @@
+test:
+  server:
+    port: 8082
+  database:
+    connection_string: "file:db_test.sqlite3?cache=shared&mode=rwc"

@@ -1,0 +1,5 @@
+development:
+  server:
+    port: 8081
+  database:
+    connection_string: "file:db_dev.sqlite3?cache=shared&mode=rwc"
