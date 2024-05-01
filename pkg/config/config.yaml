@@ -1,0 +1,7 @@
+database:
+  driver: sqlite3
+  host: ""
+  port: ""
+  name: event_bookie.db
+  user: ""
+  password: ""

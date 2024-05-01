@@ -1,6 +1,0 @@
-production:
-  server:
-    host: example.com
-    port: 80
-  database:
-    connection_string: "postgres://user:password@localhost:5432/dbname"
