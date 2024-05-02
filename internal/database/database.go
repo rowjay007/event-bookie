@@ -1,3 +1,5 @@
+// internal/database/sqlite.go
+
 package database
 
 import (
