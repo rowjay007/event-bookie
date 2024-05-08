@@ -1,38 +1,36 @@
 package api
 
 import (
-	"net/http"
-
-	// "github.com/rowjay007/event-bookie/internal/api/handlers"
-	"github.com/rowjay007/event-bookie/internal/api/middleware"
-
-	"github.com/gorilla/mux"
+    "database/sql" 
+    "github.com/gin-gonic/gin"
+    "github.com/rowjay007/event-bookie/internal/api/middleware"
 )
 
-// NewRouter returns a new router instance
-func NewRouter() http.Handler {
-    // Create a new router
-    r := mux.NewRouter()
-
-    // API routes
-    api := r.PathPrefix("/api").Subrouter()
-
-    // Event routes
-    // eventRouter := api.PathPrefix("/events").Subrouter()
-    // eventRouter.HandleFunc("/", handlers.GetEvents).Methods("GET")
-    // eventRouter.HandleFunc("/{id}", handlers.GetEvent).Methods("GET")
-    // // Add more event routes as needed
-
-    // // User routes
-    // userRouter := api.PathPrefix("/users").Subrouter()
-    // userRouter.HandleFunc("/", handlers.GetUsers).Methods("GET")
-    // userRouter.HandleFunc("/{id}", handlers.GetUser).Methods("GET")
-    // Add more user routes as needed
-
+// RegisterRoutes registers API routes
+func RegisterRoutes(router *gin.Engine, db *sql.DB) {
     // Apply middleware
-    api.Use(middleware.LoggingMiddleware)
-    api.Use(middleware.ValidationMiddleware)
-    // Add more middleware as needed
+    router.Use(middleware.AuthMiddleware())
+    router.Use(middleware.ValidateInput())
 
-    return r
+    // Define API routes here
+    router.GET("/api/resource", getResourceHandler)
+    router.POST("/api/resource", createResourceHandler)
+    router.PUT("/api/resource/:id", updateResourceHandler)
+    router.DELETE("/api/resource/:id", deleteResourceHandler)
+}
+
+func getResourceHandler(c *gin.Context) {
+    // Handle GET request for resource
+}
+
+func createResourceHandler(c *gin.Context) {
+    // Handle POST request to create resource
+}
+
+func updateResourceHandler(c *gin.Context) {
+    // Handle PUT request to update resource
+}
+
+func deleteResourceHandler(c *gin.Context) {
+    // Handle DELETE request to delete resource
 }

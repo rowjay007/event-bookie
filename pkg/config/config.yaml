@@ -1,7 +1,3 @@
-database:
-  driver: sqlite3
-  host: ""
-  port: ""
-  name: event_bookie.db
-  user: ""
-  password: ""
+DATABASE_URL: "sqlite://event-bookie.db"
+PORT: 8080
+# Add more configuration options here if needed
