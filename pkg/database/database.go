@@ -2,24 +2,18 @@ package database
 
 import (
     "database/sql"
-    "log"
-
-    _ "github.com/mattn/go-sqlite3" // SQLite driver
+    _ "github.com/lib/pq"
 )
 
-// InitDB initializes the database connection
-func InitDB(dataSourceName string) (*sql.DB, error) {
-    db, err := sql.Open("sqlite3", dataSourceName)
+// Connect establishes a connection to the database
+func Connect(url string) (*sql.DB, error) {
+    db, err := sql.Open("postgres", url)
     if err != nil {
         return nil, err
     }
-
-    // Perform a ping to check if the database is accessible
-    err = db.Ping()
-    if err != nil {
+    // Ping the database to ensure the connection is valid
+    if err := db.Ping(); err != nil {
         return nil, err
     }
-
-    log.Println("Connected to database")
     return db, nil
 }

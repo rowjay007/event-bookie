@@ -1,36 +1,22 @@
 package api
 
 import (
-    "database/sql" 
-    "github.com/gin-gonic/gin"
-    "github.com/rowjay007/event-bookie/internal/api/middleware"
+	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
-// RegisterRoutes registers API routes
-func RegisterRoutes(router *gin.Engine, db *sql.DB) {
-    // Apply middleware
-    router.Use(middleware.AuthMiddleware())
-    router.Use(middleware.ValidateInput())
+// NewRouter creates a new router for the API endpoints
+func NewRouter() *mux.Router {
+	router := mux.NewRouter().PathPrefix("/api/v1").Subrouter()
 
-    // Define API routes here
-    router.GET("/api/resource", getResourceHandler)
-    router.POST("/api/resource", createResourceHandler)
-    router.PUT("/api/resource/:id", updateResourceHandler)
-    router.DELETE("/api/resource/:id", deleteResourceHandler)
+	// Define your API routes here
+	router.HandleFunc("/events", handleGetEvents).Methods("GET")
+
+	return router
 }
 
-func getResourceHandler(c *gin.Context) {
-    // Handle GET request for resource
-}
-
-func createResourceHandler(c *gin.Context) {
-    // Handle POST request to create resource
-}
-
-func updateResourceHandler(c *gin.Context) {
-    // Handle PUT request to update resource
-}
-
-func deleteResourceHandler(c *gin.Context) {
-    // Handle DELETE request to delete resource
+// handleGetEvents is the handler function for GET /api/v1/events
+func handleGetEvents(w http.ResponseWriter, r *http.Request) {
+	// Your logic to handle GET /api/v1/events
 }

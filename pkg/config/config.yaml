@@ -1,3 +1,2 @@
-DATABASE_URL: "sqlite://event-bookie.db"
-PORT: 8080
-# Add more configuration options here if needed
+database:
+  POSTGRES_URL: postgres://postgres.bsvvrjnxwmewcctgtjlu:Bayelsea!@#45@aws-0-us-west-1.pooler.supabase.com:5432/postgres
