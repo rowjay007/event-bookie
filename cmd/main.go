@@ -1,46 +1,36 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-
-	"github.com/rowjay007/event-bookie/internal/api"
-	"github.com/rowjay007/event-bookie/pkg/database"
+    "fmt"
+    "log"
+    "github.com/rowjay007/event-bookie/config"
+    "github.com/rowjay007/event-bookie/internal/router"
+    "github.com/rowjay007/event-bookie/pkg/database"
 )
 
 func main() {
-	// Read PostgreSQL URL from environment variable
-	pgURL := os.Getenv("POSTGRES_URL")
-	if pgURL == "" {
-		log.Fatal("POSTGRES_URL environment variable is not set")
-	}
+    // Load configuration
+    cfg, err := config.NewConfig()
+    if err != nil {
+        log.Fatalf("Failed to load configuration: %v", err)
+    }
 
-	// Initialize database connection
-	db, err := database.Connect(pgURL)
-	if err != nil {
-		log.Fatalf("Failed to connect to database: %v", err)
-	}
-	defer db.Close()
+    // Connect to the database
+    db, err := database.NewDB(cfg)
+    if err != nil {
+        log.Fatalf("Failed to connect to database: %v", err)
+    } else {
+        log.Printf("Connected to database successfully")
+    }
+    defer db.Close()
 
-	// Create a new API router
-	router := api.NewRouter()
+    // Initialize Gin router
+    r := router.NewRouter()
 
-	// Start API server in a separate goroutine
-	go func() {
-		if err := http.ListenAndServe(":8080", router); err != nil {
-			log.Fatalf("API server error: %v", err)
-		}
-	}()
-
-	// Graceful shutdown
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
-	<-stop
-
-	log.Println("Shutting down server...")
-
-	log.Println("Server gracefully stopped.")
+    // Run the server
+    addr := fmt.Sprintf(":%s", cfg.Port)
+    log.Printf("Server is running on http://localhost%s\n", addr)
+    if err := r.Run(addr); err != nil {
+        log.Fatalf("Failed to start server: %v", err)
+    }
 }
