@@ -1,0 +1,19 @@
+# air.toml
+
+root = "." # project root
+tmp_dir = "tmp" # temp build directory (default is ".")
+build_delay = 1000 # build delay
+log_output = false # redirect output to stderr
+color = true # colorize logs
+clear_screen = true # clear screen when logging
+
+[build]
+  bin = "tmp/main" # path to the binary to run
+  exclude_dir = ["tmp", "vendor", "node_modules", ".git", ".vscode"] # directories to exclude from watching
+
+[[watcher]]
+  paths = ["."] # watch these files
+
+[[runner]]
+  command = "tmp/main" # command to restart when something changes
+  args = []

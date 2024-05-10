@@ -27,7 +27,7 @@ func main() {
     // Initialize Gin router
     r := router.NewRouter()
 
-    // Run the server
+    // Run the server with automatic reload
     addr := fmt.Sprintf(":%s", cfg.Port)
     log.Printf("Server is running on http://localhost%s\n", addr)
     if err := r.Run(addr); err != nil {
