@@ -4,6 +4,9 @@ import (
     "github.com/gin-gonic/gin"
     // "github.com/rowjay007/event-bookie/internal/handlers"
     "github.com/rowjay007/event-bookie/internal/middleware"
+    "github.com/swaggo/files"
+    "github.com/swaggo/gin-swagger"
+   
 )
 
 // NewRouter creates a new router instance with defined routes
@@ -36,6 +39,9 @@ func NewRouter() *gin.Engine {
 
     //     // Add more route groups for other entities like bookings, venues, payments, organizers, etc.
     // }
+
+    // Swagger routes
+    r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
     return r
 }
