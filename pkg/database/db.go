@@ -1,27 +1,37 @@
-// pkg/database/database.go
+// pkg/database/supabase.go
 
 package database
 
 import (
-    "database/sql"
-    "fmt"
-    "github.com/rowjay007/event-bookie/config"
-    _ "github.com/lib/pq"
+	"fmt"
+	"os"
+
+	"github.com/rowjay007/event-bookie/config"
 )
 
-// NewDB creates a new database connection using configuration values
-func NewDB(cfg *config.Config) (*sql.DB, error) {
-    dbURL := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s",
-        cfg.Database.User, cfg.Database.Password, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name)
-    
-    db, err := sql.Open("postgres", dbURL)
-    if err != nil {
-        return nil, fmt.Errorf("failed to open database: %v", err)
+// NewSupabaseDB creates a new Supabase database connection using configuration values
+func NewSupabaseDB(cfg *config.Config) (*SupabaseDB, error) {
+    // Initialize Supabase configuration
+    supabaseURL := os.Getenv("SUPABASE_URL")
+    supabaseKey := os.Getenv("SUPABASE_KEY")
+
+    // Check if Supabase configuration is missing
+    if supabaseURL == "" || supabaseKey == "" {
+        return nil, fmt.Errorf("Supabase configuration missing")
     }
-    
-    if err := db.Ping(); err != nil {
-        return nil, fmt.Errorf("failed to ping database: %v", err)
-    }
-    
-    return db, nil
+
+    // You can add more initialization logic here if needed
+
+    return &SupabaseDB{
+        cfg:          cfg,
+        supabaseURL:  supabaseURL,
+        supabaseKey:  supabaseKey,
+    }, nil
+}
+
+type SupabaseDB struct {
+    cfg          *config.Config
+    supabaseURL  string
+    supabaseKey  string
+    // Add any other fields or methods as needed
 }

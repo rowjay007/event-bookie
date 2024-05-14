@@ -3,9 +3,9 @@
 package config
 
 import (
-	"os"
+    "os"
 
-	"github.com/joho/godotenv"
+    "github.com/joho/godotenv"
 )
 
 // Config struct to hold configuration variables
@@ -13,6 +13,8 @@ type Config struct {
     Port       string
     Database   DatabaseConfig
     // Add more configuration variables as needed
+    SupabaseURL string // Add Supabase URL field
+    SupabaseKey string // Add Supabase key field
 }
 
 // DatabaseConfig struct to hold database configuration variables
@@ -38,6 +40,8 @@ func NewConfig() (*Config, error) {
     dbHost := os.Getenv("DB_HOST")
     dbPort := os.Getenv("DB_PORT")
     dbName := os.Getenv("DB_NAME")
+    supabaseURL := os.Getenv("SUPABASE_URL") // Add Supabase URL
+    supabaseKey := os.Getenv("SUPABASE_KEY") // Add Supabase key
 
     // Initialize Config struct
     cfg := &Config{
@@ -49,11 +53,10 @@ func NewConfig() (*Config, error) {
             Port:     dbPort,
             Name:     dbName,
         },
+        SupabaseURL: supabaseURL, // Initialize Supabase URL
+        SupabaseKey: supabaseKey, // Initialize Supabase key
         // Add more configuration variables as needed
     }
 
     return cfg, nil
 }
-
-
-

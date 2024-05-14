@@ -1,8 +1,11 @@
+// main.go
+
 package main
 
 import (
     "fmt"
     "log"
+
     "github.com/rowjay007/event-bookie/config"
     "github.com/rowjay007/event-bookie/internal/router"
     "github.com/rowjay007/event-bookie/pkg/database"
@@ -16,13 +19,12 @@ func main() {
     }
 
     // Connect to the database
-    db, err := database.NewDB(cfg)
+    _, err = database.NewSupabaseDB(cfg) // Use NewSupabaseDB instead of NewDB
     if err != nil {
         log.Fatalf("Failed to connect to database: %v", err)
     } else {
         log.Printf("Connected to database successfully")
     }
-    defer db.Close()
 
     // Initialize Gin router
     r := router.NewRouter()
