@@ -1,7 +1,8 @@
 package models
 
+
 type Organizer struct {
-    ID     uint    `json:"id" gorm:"primaryKey"`
+    ID     string  `json:"id"`
     Name   string  `json:"name"`
     Events []Event `json:"events"`
 }

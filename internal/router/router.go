@@ -2,7 +2,7 @@ package router
 
 import (
     "github.com/gin-gonic/gin"
-    // "github.com/rowjay007/event-bookie/internal/handlers"
+    "github.com/rowjay007/event-bookie/internal/handlers"
     "github.com/rowjay007/event-bookie/internal/middleware"
     "github.com/swaggo/files"
     "github.com/swaggo/gin-swagger"
@@ -24,7 +24,9 @@ func NewRouter(
     r.Use(middleware.LoggerMiddleware())
 
     // Routes
-    // v1 := r.Group("/api/v1")
+    v1 := r.Group("/api/v1")
+
+    v1.GET("/", handlers.GetAPIInfo)
     // {
     //     // Event routes
     //     eventGroup := v1.Group("/events")

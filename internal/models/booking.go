@@ -1,11 +1,12 @@
 package models
 
 type Booking struct {
-    ID        uint    `json:"id" gorm:"primaryKey"`
-    EventID   uint    `json:"event_id"`
-    UserID    uint    `json:"user_id"`
-    PaymentID uint    `json:"payment_id"`
-    Event     Event   `json:"event" gorm:"foreignKey:EventID"`
-    User      User    `json:"user" gorm:"foreignKey:UserID"`
-    Payment   Payment `json:"payment" gorm:"foreignKey:PaymentID"`
+    ID        string  `json:"id"`
+    EventID   string  `json:"event_id"`
+    UserID    string  `json:"user_id"`
+    PaymentID string  `json:"payment_id"`
+    Event     Event   `json:"event" db:"event_id" fk:"ID"`
+    User      User    `json:"user" db:"user_id" fk:"ID"`
+    Payment   Payment `json:"payment" db:"payment_id" fk:"ID"`
 }
+

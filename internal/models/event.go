@@ -5,16 +5,16 @@ import (
 )
 
 type Event struct {
-    ID          uint       `json:"id" gorm:"primaryKey"`
+    ID          uint       `json:"id"`
     Name        string     `json:"name"`
     Description string     `json:"description"`
     Date        time.Time  `json:"date"`
     Location    string     `json:"location"`
-    OrganizerID uint       `json:"organizer_id"`
-    Organizer   Organizer  `json:"organizer" gorm:"foreignKey:OrganizerID"`
-    VenueID     uint       `json:"venue_id"`
-    Venue       Venue      `json:"venue" gorm:"foreignKey:VenueID"`
-    CategoryID  uint       `json:"category_id"`
-    Category    Category   `json:"category" gorm:"foreignKey:CategoryID"`
+    OrganizerID string     `json:"organizer_id"`
+    Organizer   Organizer  `json:"organizer" db:"organizer_id" fk:"ID"`
+    VenueID     string     `json:"venue_id"`
+    Venue       Venue      `json:"venue" db:"venue_id" fk:"ID"`
+    CategoryID  string     `json:"category_id"`
+    Category    Category   `json:"category" db:"category_id" fk:"ID"`
     Bookings    []Booking  `json:"bookings"`
 }
