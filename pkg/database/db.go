@@ -4,34 +4,33 @@ package database
 
 import (
 	"fmt"
-	"os"
-
+	supabase "github.com/nedpals/supabase-go"
 	"github.com/rowjay007/event-bookie/config"
 )
 
 // NewSupabaseDB creates a new Supabase database connection using configuration values
 func NewSupabaseDB(cfg *config.Config) (*SupabaseDB, error) {
-    // Initialize Supabase configuration
-    supabaseURL := os.Getenv("SUPABASE_URL")
-    supabaseKey := os.Getenv("SUPABASE_KEY")
+	// Check if Supabase configuration is missing
+	if cfg.SupabaseURL == "" || cfg.SupabaseKey == "" {
+		return nil, fmt.Errorf("Supabase configuration missing")
+	}
 
-    // Check if Supabase configuration is missing
-    if supabaseURL == "" || supabaseKey == "" {
-        return nil, fmt.Errorf("Supabase configuration missing")
-    }
+	// Create a new Supabase client
+	client := supabase.CreateClient(cfg.SupabaseURL, cfg.SupabaseKey)
 
-    // You can add more initialization logic here if needed
+	// Log connection success
+	fmt.Println("Connected to Supabase successfully")
 
-    return &SupabaseDB{
-        cfg:          cfg,
-        supabaseURL:  supabaseURL,
-        supabaseKey:  supabaseKey,
-    }, nil
+	// You can add more initialization logic here if needed
+
+	return &SupabaseDB{
+		cfg:    cfg,
+		client: client,
+	}, nil
 }
 
 type SupabaseDB struct {
-    cfg          *config.Config
-    supabaseURL  string
-    supabaseKey  string
-    // Add any other fields or methods as needed
+	cfg    *config.Config
+	client *supabase.Client
+	// Add any other fields or methods as needed
 }

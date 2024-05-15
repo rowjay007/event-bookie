@@ -1,8 +1,9 @@
+// venue.go
 package models
 
+// Venue represents a venue entity
 type Venue struct {
-    ID       string  `json:"id"`
-    Name     string  `json:"name"`
-    Location string  `json:"location"`
-    Events   []Event `json:"events"`
+    ID       string `json:"id" db:"id,primarykey"`
+    Name     string `json:"name" db:"name"`
+    Location string `json:"location" db:"location"`
 }

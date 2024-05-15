@@ -10,11 +10,11 @@ import (
 
 // Config struct to hold configuration variables
 type Config struct {
-    Port       string
-    Database   DatabaseConfig
+    Port         string
+    Database     DatabaseConfig
+    SupabaseURL  string // Add Supabase URL field
+    SupabaseKey  string // Add Supabase key field
     // Add more configuration variables as needed
-    SupabaseURL string // Add Supabase URL field
-    SupabaseKey string // Add Supabase key field
 }
 
 // DatabaseConfig struct to hold database configuration variables
@@ -40,8 +40,8 @@ func NewConfig() (*Config, error) {
     dbHost := os.Getenv("DB_HOST")
     dbPort := os.Getenv("DB_PORT")
     dbName := os.Getenv("DB_NAME")
-    supabaseURL := os.Getenv("SUPABASE_URL") // Add Supabase URL
-    supabaseKey := os.Getenv("SUPABASE_KEY") // Add Supabase key
+    supabaseURL := os.Getenv("SUPABASE_URL")
+    supabaseKey := os.Getenv("SUPABASE_KEY") 
 
     // Initialize Config struct
     cfg := &Config{

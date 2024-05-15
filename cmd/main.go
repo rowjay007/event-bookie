@@ -19,11 +19,9 @@ func main() {
     }
 
     // Connect to the database
-    _, err = database.NewSupabaseDB(cfg) // Use NewSupabaseDB instead of NewDB
+    _, err = database.NewSupabaseDB(cfg)
     if err != nil {
         log.Fatalf("Failed to connect to database: %v", err)
-    } else {
-        log.Printf("Connected to database successfully")
     }
 
     // Initialize Gin router
