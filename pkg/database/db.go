@@ -1,36 +1,28 @@
-// pkg/database/supabase.go
-
 package database
 
 import (
+	"database/sql"
 	"fmt"
-	supabase "github.com/nedpals/supabase-go"
+
+	_ "github.com/lib/pq" // PostgreSQL driver
 	"github.com/rowjay007/event-bookie/config"
 )
 
-// NewSupabaseDB creates a new Supabase database connection using configuration values
-func NewSupabaseDB(cfg *config.Config) (*SupabaseDB, error) {
-	// Check if Supabase configuration is missing
-	if cfg.SupabaseURL == "" || cfg.SupabaseKey == "" {
-		return nil, fmt.Errorf("Supabase configuration missing")
-	}
+// NewDB creates a new database connection
+func NewDB(config *config.Config) (*sql.DB, error) {
+    connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+        config.DBHost, config.DBPort, config.DBUser, config.DBPassword, config.DBName)
 
-	// Create a new Supabase client
-	client := supabase.CreateClient(cfg.SupabaseURL, cfg.SupabaseKey)
+    db, err := sql.Open("postgres", connectionString)
+    if err != nil {
+        return nil, err
+    }
 
-	// Log connection success
-	fmt.Println("Connected to Supabase successfully")
+    // Check if the database connection is successful
+    err = db.Ping()
+    if err != nil {
+        return nil, err
+    }
 
-	// You can add more initialization logic here if needed
-
-	return &SupabaseDB{
-		cfg:    cfg,
-		client: client,
-	}, nil
-}
-
-type SupabaseDB struct {
-	cfg    *config.Config
-	client *supabase.Client
-	// Add any other fields or methods as needed
+    return db, nil
 }

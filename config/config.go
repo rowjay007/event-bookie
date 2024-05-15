@@ -1,62 +1,35 @@
-// config/config.go
-
 package config
 
 import (
     "os"
-
-    "github.com/joho/godotenv"
 )
 
-// Config struct to hold configuration variables
+// Config holds the configuration values for the application
 type Config struct {
-    Port         string
-    Database     DatabaseConfig
-    SupabaseURL  string // Add Supabase URL field
-    SupabaseKey  string // Add Supabase key field
-    // Add more configuration variables as needed
+    Port       string
+    DBUser     string
+    DBPassword string
+    DBHost     string
+    DBPort     string
+    DBName     string
 }
 
-// DatabaseConfig struct to hold database configuration variables
-type DatabaseConfig struct {
-    User     string
-    Password string
-    Host     string
-    Port     string
-    Name     string
+// NewConfig creates a new configuration instance
+func NewConfig() *Config {
+    return &Config{
+        Port:       getEnv("PORT", ""),
+        DBUser:     getEnv("DB_USER", ""),
+        DBPassword: getEnv("DB_PASSWORD", ""),
+        DBHost:     getEnv("DB_HOST", "localhost"),
+        DBPort:     getEnv("DB_PORT", "5432"),
+        DBName:     getEnv("DB_NAME", ""),
+    }
 }
 
-func NewConfig() (*Config, error) {
-    // Specify the path to the .env file
-    err := godotenv.Load("../.env")
-    if err != nil {
-        return nil, err
+// getEnv retrieves the value of an environment variable or returns a default value
+func getEnv(key, defaultValue string) string {
+    if value, exists := os.LookupEnv(key); exists {
+        return value
     }
-
-    // Parse configuration from environment variables
-    port := os.Getenv("PORT")
-    dbUser := os.Getenv("DB_USER")
-    dbPassword := os.Getenv("DB_PASSWORD")
-    dbHost := os.Getenv("DB_HOST")
-    dbPort := os.Getenv("DB_PORT")
-    dbName := os.Getenv("DB_NAME")
-    supabaseURL := os.Getenv("SUPABASE_URL")
-    supabaseKey := os.Getenv("SUPABASE_KEY") 
-
-    // Initialize Config struct
-    cfg := &Config{
-        Port: port,
-        Database: DatabaseConfig{
-            User:     dbUser,
-            Password: dbPassword,
-            Host:     dbHost,
-            Port:     dbPort,
-            Name:     dbName,
-        },
-        SupabaseURL: supabaseURL, // Initialize Supabase URL
-        SupabaseKey: supabaseKey, // Initialize Supabase key
-        // Add more configuration variables as needed
-    }
-
-    return cfg, nil
+    return defaultValue
 }
