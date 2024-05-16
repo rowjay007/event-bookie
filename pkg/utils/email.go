@@ -1,19 +1,25 @@
 package utils
 
 import (
-    "net/smtp"
+	"net/smtp"
 )
 
-// SendEmail sends an email
+// SendEmail sends an email using SMTP
 func SendEmail(to, subject, body string) error {
-    // Set up authentication information.
-    auth := smtp.PlainAuth("", "your-email@example.com", "your-email-password", "smtp.example.com")
+    // SMTP server configuration
+    smtpServer := "smtp.example.com"
+    smtpPort := "587"
+    smtpUsername := "username"
+    smtpPassword := "password"
 
-    // Connect to the server, authenticate, set the sender and recipient,
-    // and send the email all in one step.
-    err := smtp.SendMail("smtp.example.com:587", auth, "your-email@example.com", []string{to}, []byte("Subject: "+subject+"\r\n"+body))
-    if err != nil {
-        return err
-    }
-    return nil
+    // Message
+    msg := "From: " + smtpUsername + "\n" +
+        "To: " + to + "\n" +
+        "Subject: " + subject + "\n" +
+        body
+
+    // Send email
+    auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpServer)
+    err := smtp.SendMail(smtpServer+":"+smtpPort, auth, smtpUsername, []string{to}, []byte(msg))
+    return err
 }

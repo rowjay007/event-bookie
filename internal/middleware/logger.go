@@ -1,34 +1,26 @@
 package middleware
 
 import (
-    "fmt"
-    "github.com/gin-gonic/gin"
-    "time"
+	"fmt"
+	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
-// LoggerMiddleware is a middleware to log requests
+// LoggerMiddleware is a middleware function to log requests
 func LoggerMiddleware() gin.HandlerFunc {
-    return func(c *gin.Context) {
-        // Start timer
-        start := time.Now()
+	return func(c *gin.Context) {
+		start := time.Now()
 
-        // Process request
-        c.Next()
+		// Process request
+		c.Next()
 
-        // Log request details
-        latency := time.Since(start)
-        clientIP := c.ClientIP()
-        method := c.Request.Method
-        statusCode := c.Writer.Status()
-        path := c.Request.URL.Path
-
-        fmt.Printf("[GIN] %v | %3d | %12v | %s | %-7s %s\n",
-            start.Format("2006/01/02 - 15:04:05"),
-            statusCode,
-            latency,
-            clientIP,
-            method,
-            path,
-        )
-    }
+		// Log request details
+		end := time.Now()
+		latency := end.Sub(start)
+		clientIP := c.ClientIP()
+		method := c.Request.Method
+		statusCode := c.Writer.Status()
+		fmt.Printf("[%s] %s %s %d %v\n", clientIP, method, c.Request.URL.Path, statusCode, latency)
+	}
 }

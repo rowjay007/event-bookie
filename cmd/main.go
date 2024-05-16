@@ -29,13 +29,13 @@ func main() {
 	defer db.Close()
 
 	// Print a message to indicate successful database connection
-	fmt.Println("Connected to the database")
+	fmt.Println("🔥 Connected to the database 🌈🌈💥")
 
 	// Initialize router
 	r := router.NewRouter()
 
 	// Start HTTP server
 	port := conf.Port
-	fmt.Printf("Server is running on port %s\n", port)
+	fmt.Printf("🌈 Server is running on port %s\n🔥", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
