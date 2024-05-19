@@ -12,27 +12,26 @@ import (
 )
 
 func main() {
-	// Load environment variables from .env file
 	err := godotenv.Load("../.env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+if err != nil {
+    log.Fatal("Error loading .env file")
+}
 
-	// Initialize configuration
-	conf := config.NewConfig()
+// Initialize configuration
+conf := config.NewConfig()
 
-	// Connect to the database
-	db, err := database.NewDB(conf)
-	if err != nil {
-		log.Fatalf("Error connecting to the database: %v", err)
-	}
-	defer db.Close()
+// Connect to the database
+db, err := database.NewDB(conf)
+if err != nil {
+    log.Fatalf("Error connecting to the database: %v", err)
+}
+defer db.Close()
 
-	// Apply migrations
-	err = database.ApplyMigrations(db)
-	if err != nil {
-		log.Fatalf("Error applying migrations: %v", err)
-	}
+// Apply migrations
+err = database.ApplyMigrations(db, conf)
+if err != nil {
+    log.Fatalf("Error applying migrations: %v", err)
+}
 
 	// Print a message to indicate successful migration
 	fmt.Println("🔥 Migrations applied successfully 🌈🌈💥")

@@ -1,17 +1,13 @@
 package database
 
 import (
-    "database/sql"
-    "fmt"
-    "log"
-    "os"
+	"database/sql"
+	"fmt"
 
-    "github.com/golang-migrate/migrate/v4"
-    _ "github.com/golang-migrate/migrate/v4/database/postgres"
-    _ "github.com/golang-migrate/migrate/v4/source/file"
-    "github.com/joho/godotenv"
-    _ "github.com/lib/pq" // PostgreSQL driver
-    "github.com/rowjay007/event-bookie/config"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/rowjay007/event-bookie/config"
 )
 
 // NewDB creates a new database connection
@@ -30,39 +26,28 @@ func NewDB(config *config.Config) (*sql.DB, error) {
         return nil, err
     }
 
-    // Apply migrations
-    if err := ApplyMigrations(db); err != nil {
+    // Apply migrations using configuration settings
+    if err := ApplyMigrations(db, config); err != nil {
         return nil, err
     }
 
     return db, nil
 }
 
-// ApplyMigrations applies migrations to the database
-func ApplyMigrations(db *sql.DB) error {
-    // Load environment variables from .env file
-    if err := godotenv.Load(); err != nil {
-        log.Fatal("Error loading .env file")
-    }
-
+func ApplyMigrations(db *sql.DB, config *config.Config) error {
     driver := "postgres"
-    migrationsPath := "file://migrations"
-
-    if _, exists := os.LookupEnv("DATABASE_URL"); exists {
-        driver = "postgres"
-        migrationsPath = os.Getenv("MIGRATIONS_PATH")
-    }
+    migrationsPath := "file://../migrations"
 
     // Initialize the migration instance
     m, err := migrate.New(
         migrationsPath,
         fmt.Sprintf("%s://%s:%s@%s:%s/%s?sslmode=disable",
             driver,
-            os.Getenv("DB_USER"),
-            os.Getenv("DB_PASSWORD"),
-            os.Getenv("DB_HOST"),
-            os.Getenv("DB_PORT"),
-            os.Getenv("DB_NAME")),
+            config.DBUser,
+            config.DBPassword,
+            config.DBHost,
+            config.DBPort,
+            config.DBName),
     )
     if err != nil {
         return err
@@ -76,3 +61,4 @@ func ApplyMigrations(db *sql.DB) error {
 
     return nil
 }
+
