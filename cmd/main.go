@@ -28,8 +28,14 @@ func main() {
 	}
 	defer db.Close()
 
-	// Print a message to indicate successful database connection
-	fmt.Println("🔥 Connected to the database 🌈🌈💥")
+	// Apply migrations
+	err = database.ApplyMigrations(db)
+	if err != nil {
+		log.Fatalf("Error applying migrations: %v", err)
+	}
+
+	// Print a message to indicate successful migration
+	fmt.Println("🔥 Migrations applied successfully 🌈🌈💥")
 
 	// Initialize router
 	r := router.NewRouter()
