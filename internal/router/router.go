@@ -13,21 +13,19 @@ import (
 func NewRouter(db *gorm.DB) *gin.Engine {
 	router := gin.Default()
 
-	// Public routes
+	// Apply LoggerMiddleware globally
+	router.Use(middleware.LoggerMiddleware())
 
-	// API version 1 routes
+	// Public routes
 	v1 := router.Group("/api/v1")
 	{
 		v1.GET("/", handlers.WelcomeHandler)
-
-		// Apply authentication middleware to the following routes
 		v1.Use(middleware.AuthMiddleware())
 		{
 			// Define your protected routes here
 		}
 	}
 
-	// Admin routes
 	admin := router.Group("/admin")
 	admin.Use(middleware.AuthMiddleware(), middleware.RoleMiddleware("admin"))
 	{

@@ -35,23 +35,34 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Set the user ID in the context for further handlers to use
+		// Set the user ID and role in the context for further handlers to use
 		c.Set("userID", claims.UserID)
+		c.Set("userRole", claims.Role)
 
 		// Continue to the next handler
 		c.Next()
 	}
 }
 
-
-func RoleMiddleware(requiredRole string) gin.HandlerFunc {
+// RoleMiddleware ensures the user has the required role
+func RoleMiddleware(requiredRoles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userRole, exists := c.Get("userRole")
-		if !exists || userRole != requiredRole {
-			c.JSON(http.StatusForbidden, gin.H{"error": "You don't have permission to access this resource"})
+		if !exists {
+			c.JSON(http.StatusForbidden, gin.H{"error": "No role found"})
 			c.Abort()
 			return
 		}
-		c.Next()
+
+		// Check if the userRole is in the requiredRoles
+		for _, role := range requiredRoles {
+			if userRole == role {
+				c.Next()
+				return
+			}
+		}
+
+		c.JSON(http.StatusForbidden, gin.H{"error": "Insufficient permissions"})
+		c.Abort()
 	}
 }

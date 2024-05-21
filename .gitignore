@@ -1,4 +1,14 @@
 # Binaries for programs and plugins
+# .env (for development only)
+PORT=8080
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_HOST=your_db_host
+DB_PORT=5432
+DB_NAME=your_db_name
+SUPABASE_URL=your_supabase_url
+JWT_SECRET=your_jwt_secret_key
+
 *.exe
 *.exe~
 *.dll

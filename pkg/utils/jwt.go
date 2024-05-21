@@ -2,29 +2,29 @@ package utils
 
 import (
 	"errors"
+	"os"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 )
 
 // jwtSecret should be securely stored in your environment variables
-var jwtSecret = []byte("your_jwt_secret_key")
+var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
-// Claims defines the custom claims for the JWT toke
+// Claims defines the custom claims for the JWT token
 type Claims struct {
 	UserID uint   `json:"user_id"`
 	Role   string `json:"role"` // Add role to claims
 	jwt.StandardClaims
 }
 
-
-// GenerateToken generates a new JWT token for a given user ID
+// GenerateToken generates a new JWT token for a given user ID and role
 func GenerateToken(userID uint, role string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		UserID: userID,
 		Role:   role,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
+			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), // Customize expiration time
 		},
 	})
 	tokenString, err := token.SignedString(jwtSecret)
@@ -33,7 +33,6 @@ func GenerateToken(userID uint, role string) (string, error) {
 	}
 	return tokenString, nil
 }
-
 
 // ParseToken parses and validates a JWT token
 func ParseToken(tokenString string) (*Claims, error) {
