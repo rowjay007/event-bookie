@@ -1,9 +1,0 @@
-CREATE TABLE IF NOT EXISTS payments (
-    id SERIAL PRIMARY KEY,
-    booking_id INT NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
-    amount NUMERIC(10, 2) NOT NULL,
-    paid_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-    deleted_at TIMESTAMP
-);

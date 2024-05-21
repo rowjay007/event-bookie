@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -9,30 +10,30 @@ import (
 // jwtSecret should be securely stored in your environment variables
 var jwtSecret = []byte("your_jwt_secret_key")
 
-// Claims defines the custom claims for the JWT token
+// Claims defines the custom claims for the JWT toke
 type Claims struct {
-	UserID uint `json:"user_id"`
+	UserID uint   `json:"user_id"`
+	Role   string `json:"role"` // Add role to claims
 	jwt.StandardClaims
 }
 
+
 // GenerateToken generates a new JWT token for a given user ID
-func GenerateToken(userID uint) (string, error) {
-	// Create a new token object with claims
+func GenerateToken(userID uint, role string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
 		UserID: userID,
+		Role:   role,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), // Token expiration time (24 hours)
+			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 		},
 	})
-
-	// Generate the token string
 	tokenString, err := token.SignedString(jwtSecret)
 	if err != nil {
 		return "", err
 	}
-
 	return tokenString, nil
 }
+
 
 // ParseToken parses and validates a JWT token
 func ParseToken(tokenString string) (*Claims, error) {
@@ -51,7 +52,7 @@ func ParseToken(tokenString string) (*Claims, error) {
 	// Extract the claims from the token
 	claims, ok := token.Claims.(*Claims)
 	if !ok || !token.Valid {
-		return nil, jwt.ErrSignatureInvalid
+		return nil, errors.New("invalid token")
 	}
 
 	return claims, nil

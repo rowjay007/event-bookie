@@ -1,39 +1,46 @@
 package router
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/rowjay007/event-bookie/internal/handlers"
 	"github.com/rowjay007/event-bookie/internal/middleware"
-	"github.com/swaggo/gin-swagger"
-	"github.com/swaggo/files" 
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"gorm.io/gorm"
 )
 
-// NewRouter initializes and returns a new Gin router
-func NewRouter() *gin.Engine {
-	r := gin.Default()
+// NewRouter sets up the router with routes and middleware
+func NewRouter(db *gorm.DB) *gin.Engine {
+	router := gin.Default()
 
-	// Load Swagger documentation
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	// Public routes
 
-	// Use logger middleware
-	r.Use(middleware.LoggerMiddleware())
-
-	// Define API routes with auth middleware
-	v1 := r.Group("/api/v1")
-	v1.Use(middleware.AuthMiddleware()) 
+	// API version 1 routes
+	v1 := router.Group("/api/v1")
 	{
 		v1.GET("/", handlers.WelcomeHandler)
-		// v1.GET("/events", handlers.GetEvents)
-		// v1.POST("/events", handlers.CreateEvent)
-	
+
+		// Apply authentication middleware to the following routes
+		v1.Use(middleware.AuthMiddleware())
+		{
+			// Define your protected routes here
+		}
 	}
 
-	// Handle not found routes
-	r.NoRoute(func(c *gin.Context) {
-		c.JSON(http.StatusNotFound, gin.H{"message": "Not found"})
-	})
+	// Admin routes
+	admin := router.Group("/admin")
+	admin.Use(middleware.AuthMiddleware(), middleware.RoleMiddleware("admin"))
+	{
+		// Define your admin routes here
+	}
 
-	return r
+	// Setup Swagger
+	SetupSwagger(router)
+
+	return router
+}
+
+// SetupSwagger sets up the Swagger documentation routes
+func SetupSwagger(r *gin.Engine) {
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
