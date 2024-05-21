@@ -2,19 +2,14 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
+// Venue represents a venue entity
 type Venue struct {
-	ID        uint           `gorm:"primaryKey" json:"id"`
-	Name      string         `gorm:"not null" json:"name"`
-	Address   string         `gorm:"not null" json:"address"`
-	City      string         `gorm:"not null" json:"city"`
-	State     string         `json:"state"`
-	ZipCode   string         `json:"zip_code"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
-	Events    []Event        `json:"events"`
+	ID        uint      `json:"id" gorm:"primaryKey"`
+	Name      string    `json:"name"`
+	Location  string    `json:"location"`
+	Capacity  uint      `json:"capacity"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }

@@ -2,17 +2,14 @@ package models
 
 import (
 	"time"
-
-	"gorm.io/gorm"
 )
 
+// Payment represents a payment entity
 type Payment struct {
-	ID         uint           `gorm:"primaryKey" json:"id"`
-	BookingID  uint           `gorm:"not null" json:"booking_id"`
-	Amount     float64        `gorm:"not null" json:"amount"`
-	PaidAt     time.Time      `gorm:"not null" json:"paid_at"`
-	CreatedAt  time.Time      `json:"created_at"`
-	UpdatedAt  time.Time      `json:"updated_at"`
-	DeletedAt  gorm.DeletedAt `gorm:"index" json:"-"`
-	Booking    Booking        `gorm:"foreignKey:BookingID" json:"booking"`
+	ID        uint      `json:"id" gorm:"primaryKey"`
+	BookingID uint      `json:"booking_id"`
+	Amount    float64   `json:"amount"`
+	Status    string    `json:"status"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
