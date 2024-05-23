@@ -33,7 +33,25 @@ info:
   title: Event Bookie API
   version: "1.0"
 paths:
-  /users:
+  /api/v1/users:
+    get:
+      description: Retrieve all users from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Get all users
+      tags:
+      - users
     post:
       consumes:
       - application/json
@@ -61,7 +79,9 @@ paths:
           schema:
             $ref: '#/definitions/gin.H'
       summary: Create a new user
-  /users/{id}:
+      tags:
+      - users
+  /api/v1/users/{id}:
     delete:
       description: Delete a user by its ID
       parameters:
@@ -74,7 +94,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: User deleted successfully
           schema:
             type: string
         "400":
@@ -90,30 +110,8 @@ paths:
           schema:
             $ref: '#/definitions/gin.H'
       summary: Delete a user
-    get:
-      description: Retrieve a user by its ID
-      parameters:
-      - description: User ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.User'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/gin.H'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/gin.H'
-      summary: Get a user by ID
+      tags:
+      - users
     put:
       consumes:
       - application/json
@@ -150,4 +148,6 @@ paths:
           schema:
             $ref: '#/definitions/gin.H'
       summary: Update a user
+      tags:
+      - users
 swagger: "2.0"
