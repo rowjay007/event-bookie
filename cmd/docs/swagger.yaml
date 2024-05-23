@@ -1,11 +1,153 @@
 basePath: /api/v1
+definitions:
+  gin.H:
+    additionalProperties: {}
+    type: object
+  github_com_rowjay007_event-bookie_internal_models.User:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      role:
+        type: string
+      updated_at:
+        type: string
+    type: object
 host: localhost:8080
 info:
-  contact:
-    email: support@example.com
-    name: API Support
-  description: This is a sample server for event booking.
-  title: Event Booking API
+  contact: {}
+  description: The Event Bookie API is a powerful platform designed to streamline
+    event management and booking processes. It provides a comprehensive set of features
+    for creating, managing, and discovering events, handling bookings, managing venues,
+    processing payments, and facilitating organizer interactions.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: Event Bookie API
   version: "1.0"
-paths: {}
+paths:
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user with the provided details
+      parameters:
+      - description: User object to be created
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Create a new user
+  /users/{id}:
+    delete:
+      description: Delete a user by its ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Delete a user
+    get:
+      description: Retrieve a user by its ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Get a user by ID
+    put:
+      consumes:
+      - application/json
+      description: Update an existing user with the provided details
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User object with updated details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.User'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Update a user
 swagger: "2.0"

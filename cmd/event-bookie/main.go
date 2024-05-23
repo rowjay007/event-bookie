@@ -1,3 +1,4 @@
+// Package main is the entry point of the Event Bookie application.
 package main
 
 import (
@@ -15,19 +16,27 @@ import (
     "github.com/rowjay007/event-bookie/config"
     "github.com/rowjay007/event-bookie/internal/router"
     "github.com/rowjay007/event-bookie/pkg/database"
-    _ "github.com/rowjay007/event-bookie/cmd/docs" 
     "github.com/sirupsen/logrus"
+    _ "github.com/rowjay007/event-bookie/cmd/docs" 
     "gorm.io/driver/postgres"
     "gorm.io/gorm"
 )
 
+// @title Event Bookie API
+// @version 1.0
+// @description The Event Bookie API is a powerful platform designed to streamline event management and booking processes. It provides a comprehensive set of features for creating, managing, and discovering events, handling bookings, managing venues, processing payments, and facilitating organizer interactions.
+//
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+//
+// @host localhost:8080
+// @BasePath /api/v1
 func main() {
-    if err := godotenv.Load("../.env"); err != nil {
+    if err := godotenv.Load("../../.env"); err != nil {
         log.Fatalf("Error loading .env file: %v", err)
     }
 
     conf := config.NewConfig()
-
     logger := logrus.New()
     logger.SetFormatter(&logrus.JSONFormatter{})
 
@@ -104,5 +113,6 @@ func waitForShutdown(server *http.Server, logger *logrus.Logger) {
     if err := server.Shutdown(ctx); err != nil {
         logger.Fatalf("Server forced to shutdown: %v", err)
     }
+
     logger.Println("Server gracefully stopped")
 }
