@@ -41,55 +41,47 @@ func (uh *UserHandler) CreateUser(c *gin.Context) {
 }
 
 
-func (uh *UserHandler) GetAllUsers(c *gin.Context) {
-	// Get query parameters
-	queryParams := c.Request.URL.Query()
-	offset, _ := strconv.Atoi(queryParams.Get("offset"))
-	limit, _ := strconv.Atoi(queryParams.Get("limit"))
-
-	// Convert queryParams to map[string]string
-	params := make(map[string]string)
-	for key, values := range queryParams {
-		if len(values) > 0 {
-			params[key] = values[0]
-		}
-	}
-
-	// Get all users with filtering, sorting, and pagination
-	users, total, err := uh.UserService.GetAllUsers(params, offset, limit)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
-		return
-	}
-
-	// Prepare response
-	response := gin.H{
-		"users": users,
-		"total": total,
-	}
-
-	// Send response
-	c.JSON(http.StatusOK, response)
-}
-
 // GetAllUsers godoc
-// @Summary Get all users
-// @Description Retrieve all users with filtering, sorting, and pagination
+// @Summary Get all users with filtering, sorting, and pagination
+// @Description Get all users with optional filtering, sorting, and pagination
 // @Tags users
-// @Accept json
-// @Produce json
-// @Param offset query integer false "Offset for pagination"
-// @Param limit query integer false "Limit for pagination"
-// @Success 200 {object} gin.H{"users":array,"total":integer} "List of users and total count"
-// @Failure 500 {object} gin.H{"error":string} "Internal server error"
-// @Router /users [get]
-func (uh *UserHandler) GetAllUser(c *gin.Context) {
-	// Get query parameters
+// @Param name query string false "Filter by name"
+// @Param email query string false "Filter by email"
+// @Param sort_by query string false "Sort by field (e.g., name, email)"
+// @Param sort_order query string false "Sort order (asc or desc)"
+// @Param offset query int false "Offset for pagination"
+// @Param limit query int false "Limit for pagination"
+// @Success 200 {object} map[string]interface{} "Users and total count"
+// @Failure 500 {object} gin.H "Failed to fetch users"
+// @Router /api/v1/users [get]
+func (uh *UserHandler) GetAllUsers(c *gin.Context) {
 	queryParams := c.Request.URL.Query()
-	offset, _ := strconv.Atoi(queryParams.Get("offset"))
-	limit, _ := strconv.Atoi(queryParams.Get("limit"))
+	offsetStr := queryParams.Get("offset")
+	limitStr := queryParams.Get("limit")
 
-	// Convert queryParams to map[string]string
+	var offset, limit int
+	var err error
+
+	if offsetStr != "" {
+		offset, err = strconv.Atoi(offsetStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offset"})
+			return
+		}
+	} else {
+		offset = -1
+	}
+
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit"})
+			return
+		}
+	} else {
+		limit = -1
+	}
+
 	params := make(map[string]string)
 	for key, values := range queryParams {
 		if len(values) > 0 {
@@ -97,24 +89,19 @@ func (uh *UserHandler) GetAllUser(c *gin.Context) {
 		}
 	}
 
-	// Get all users with filtering, sorting, and pagination
 	users, total, err := uh.UserService.GetAllUsers(params, offset, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
 		return
 	}
 
-	// Prepare response
 	response := gin.H{
 		"users": users,
 		"total": total,
 	}
 
-	// Send response
 	c.JSON(http.StatusOK, response)
 }
-
-
 
 // GetUserByID godoc
 // @Summary Get a user by ID

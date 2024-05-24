@@ -1,4 +1,3 @@
-// Package main is the entry point of the Event Bookie application.
 package main
 
 import (
@@ -40,7 +39,6 @@ func main() {
     logger := logrus.New()
     logger.SetFormatter(&logrus.JSONFormatter{})
 
-    // Connect to the database and ensure proper closure
     db, gormDB, err := initializeDatabase(conf, logger)
     if err != nil {
         logger.Fatalf("Error initializing database: %v", err)
@@ -51,20 +49,16 @@ func main() {
         }
     }()
 
-    // Print a message to indicate successful database connection
     logger.Info("Connected to the database successfully")
 
-    // Apply migrations
     if err := database.ApplyMigrations(conf, logger); err != nil {
         logger.Errorf("Error applying migrations: %v", err)
     } else {
         logger.Info("Migrations applied successfully")
     }
 
-    // Initialize router with gormDB
     r := router.SetupRouter(gormDB)
 
-    // Start HTTP server
     port := conf.Port
     logger.Infof("Server is running on port %s", port)
 
@@ -79,11 +73,9 @@ func main() {
         }
     }()
 
-    // Graceful shutdown
     waitForShutdown(server, logger)
 }
 
-// initializeDatabase sets up the database connection and returns both *sql.DB and *gorm.DB
 func initializeDatabase(conf *config.Config, logger *logrus.Logger) (*sql.DB, *gorm.DB, error) {
     db, err := database.NewDB(conf, logger)
     if err != nil {
@@ -100,7 +92,6 @@ func initializeDatabase(conf *config.Config, logger *logrus.Logger) (*sql.DB, *g
     return db, gormDB, nil
 }
 
-// waitForShutdown waits for interrupt signals to gracefully shut down the server
 func waitForShutdown(server *http.Server, logger *logrus.Logger) {
     quit := make(chan os.Signal, 1)
     signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)

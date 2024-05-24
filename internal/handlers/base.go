@@ -16,9 +16,7 @@ func WelcomeHandler(c *gin.Context) {
 	})
 }
 
-// ExampleHandler demonstrates the usage of the standardized error response
 func ExampleHandler(c *gin.Context) {
-	// Simulating an error scenario
 	if true {
 		SendErrorResponse(c, http.StatusBadRequest, "An example error occurred")
 		return

@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/rowjay007/event-bookie/internal/models"
 	"github.com/rowjay007/event-bookie/internal/repository"
 	"github.com/rowjay007/event-bookie/pkg/utils"
@@ -17,7 +18,6 @@ func NewUserService(userRepo *repository.UserRepository) *UserService {
 }
 
 func (us *UserService) CreateUser(user *models.User) error {
-	// Check if the email already exists
 	existingUser, err := us.UserRepository.GetByEmail(user.Email)
 	if err == nil && existingUser != nil {
 		return errors.New("email already exists")

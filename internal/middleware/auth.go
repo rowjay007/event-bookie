@@ -8,7 +8,6 @@ import (
 	"github.com/rowjay007/event-bookie/pkg/utils"
 )
 
-// AuthMiddleware is a middleware function to authenticate requests
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")

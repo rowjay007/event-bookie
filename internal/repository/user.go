@@ -18,42 +18,40 @@ func (ur *UserRepository) Create(user *models.User) error {
 }
 
 func (ur *UserRepository) GetAll(queryParams map[string]string, offset, limit int) ([]models.User, int64, error) {
-    var users []models.User
-    var total int64
+	var users []models.User
+	var total int64
 
-    // Build the query
-    query := ur.DB.Model(&models.User{})
+	query := ur.DB.Model(&models.User{})
 
-    // Apply filtering
-    if name := queryParams["name"]; name != "" {
-        query = query.Where("name LIKE ?", "%"+name+"%")
-    }
+	if name := queryParams["name"]; name != "" {
+		query = query.Where("name LIKE ?", "%"+name+"%")
+	}
+	if email := queryParams["email"]; email != "" {
+		query = query.Where("email LIKE ?", "%"+email+"%")
+	}
 
-    // Apply sorting
-    if sortBy := queryParams["sort_by"]; sortBy != "" {
-        order := "ASC"
-        if sortOrder := queryParams["sort_order"]; sortOrder == "desc" {
-            order = "DESC"
-        }
-        query = query.Order(sortBy + " " + order)
-    }
+	if sortBy := queryParams["sort_by"]; sortBy != "" {
+		order := "ASC"
+		if sortOrder := queryParams["sort_order"]; sortOrder == "desc" {
+			order = "DESC"
+		}
+		query = query.Order(sortBy + " " + order)
+	}
 
-    // Count total before pagination
-    if err := query.Count(&total).Error; err != nil {
-        return nil, 0, err
-    }
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
 
-    // Apply pagination
-    query = query.Offset(offset).Limit(limit)
+	if offset != -1 && limit != -1 {
+		query = query.Offset(offset).Limit(limit)
+	}
 
-    // Execute the query
-    if err := query.Find(&users).Error; err != nil {
-        return nil, 0, err
-    }
+	if err := query.Find(&users).Error; err != nil {
+		return nil, 0, err
+	}
 
-    return users, total, nil
+	return users, total, nil
 }
-
 
 func (ur *UserRepository) GetByID(id uint) (*models.User, error) {
 	var user models.User

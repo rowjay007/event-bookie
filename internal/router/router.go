@@ -14,19 +14,15 @@ import (
 func SetupRouter(db *gorm.DB) *gin.Engine {
 	r := gin.Default()
 
-	// Initialize repository and service layers
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
 
-	// Public routes
 	r.GET("/", handlers.WelcomeHandler)
 	r.POST("/api/v1/signup", userHandler.CreateUser)
 
-	// API v1 routes
 	apiV1 := r.Group("/api/v1")
 	{
-		// User routes
 		userGroup := apiV1.Group("/users")
 		userGroup.Use(middleware.AuthMiddleware())
 		{
@@ -36,7 +32,6 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			userGroup.GET("/", userHandler.GetAllUsers)
 		}
 
-		// Authentication routes
 		authGroup := apiV1.Group("/auth")
 		{
 			authGroup.POST("/login", userHandler.Login)
@@ -45,7 +40,6 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			authGroup.POST("/logout", userHandler.Logout)
 		}
 
-		// Secured routes
 		securedGroup := apiV1.Group("/secured")
 		securedGroup.Use(middleware.AuthMiddleware())
 		{
@@ -53,7 +47,6 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		}
 	}
 
-	// Swagger documentation route
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	return r
