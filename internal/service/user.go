@@ -1,41 +1,93 @@
 package service
 
 import (
-    "github.com/rowjay007/event-bookie/internal/models"
-    "github.com/rowjay007/event-bookie/internal/repository"
+	"errors"
+	"github.com/rowjay007/event-bookie/internal/models"
+	"github.com/rowjay007/event-bookie/internal/repository"
+	"github.com/rowjay007/event-bookie/pkg/utils"
+	"golang.org/x/crypto/bcrypt"
 )
 
-// UserService provides user-related services
 type UserService struct {
-    UserRepository *repository.UserRepository
+	UserRepository *repository.UserRepository
 }
 
-// NewUserService creates a new UserService instance
 func NewUserService(userRepo *repository.UserRepository) *UserService {
-    return &UserService{UserRepository: userRepo}
+	return &UserService{UserRepository: userRepo}
 }
 
-// CreateUser creates a new user
 func (us *UserService) CreateUser(user *models.User) error {
-    return us.UserRepository.Create(user)
+	// Check if the email already exists
+	existingUser, err := us.UserRepository.GetByEmail(user.Email)
+	if err == nil && existingUser != nil {
+		return errors.New("email already exists")
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.Password = string(hashedPassword)
+
+	return us.UserRepository.Create(user)
 }
 
-// GetAllUsers retrieves all users
-func (us *UserService) GetAllUsers() ([]models.User, error) {
-    return us.UserRepository.GetAll()
+func (us *UserService) GetAllUsers(queryParams map[string]string, offset, limit int) ([]models.User, int64, error) {
+	return us.UserRepository.GetAll(queryParams, offset, limit)
 }
 
-// GetUserByID retrieves a user by its ID
 func (us *UserService) GetUserByID(id uint) (*models.User, error) {
-    return us.UserRepository.GetByID(id)
+	return us.UserRepository.GetByID(id)
 }
 
-// UpdateUser updates an existing user
+func (us *UserService) GetUserByEmail(email string) (*models.User, error) {
+	return us.UserRepository.GetByEmail(email)
+}
+
 func (us *UserService) UpdateUser(user *models.User) error {
-    return us.UserRepository.Update(user)
+	return us.UserRepository.Update(user)
 }
 
-// DeleteUser deletes a user
 func (us *UserService) DeleteUser(user *models.User) error {
-    return us.UserRepository.Delete(user)
+	return us.UserRepository.Delete(user)
+}
+
+func (us *UserService) AuthenticateUser(email, password string) (*models.User, error) {
+	user, err := us.UserRepository.GetByEmail(email)
+	if err != nil {
+		return nil, err
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+	return user, nil
+}
+
+func (us *UserService) GenerateJWT(email, role string) (string, error) {
+	return utils.GenerateJWT(email, role)
+}
+
+func (us *UserService) ForgotPassword(email string) (string, error) {
+	_, err := us.UserRepository.GetByEmail(email)
+	if err != nil {
+		return "", err
+	}
+	resetToken, err := utils.GenerateResetToken()
+	if err != nil {
+		return "", err
+	}
+	return resetToken, nil
+}
+
+func (us *UserService) ResetPassword(email, newPassword string) error {
+	user, err := us.UserRepository.GetByEmail(email)
+	if err != nil {
+		return err
+	}
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	user.Password = string(hashedPassword)
+	return us.UserRepository.Update(user)
 }

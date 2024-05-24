@@ -9,167 +9,309 @@ import (
 	"github.com/rowjay007/event-bookie/internal/service"
 )
 
-// UserHandler handles HTTP requests related to user management
 type UserHandler struct {
-    UserService *service.UserService
+	UserService *service.UserService
 }
 
-// NewUserHandler creates a new instance of UserHandler
 func NewUserHandler(userService *service.UserService) *UserHandler {
-    return &UserHandler{UserService: userService}
+	return &UserHandler{UserService: userService}
 }
 
-// CreateUser handles the creation of a new user
+// CreateUser godoc
 // @Summary Create a new user
-// @Description Create a new user with the provided details
-// @Tags users
+// @Description Create a new user
+// @Tags Users
 // @Accept json
 // @Produce json
-// @Param user body models.User true "User object to be created"
+// @Param user body models.User true "User"
 // @Success 201 {object} models.User
 // @Failure 400 {object} gin.H
-// @Failure 500 {object} gin.H
-// @Router /api/v1/users [post]
+// @Router /api/v1/users/create [post]
 func (uh *UserHandler) CreateUser(c *gin.Context) {
-    var user models.User
-    if err := c.ShouldBindJSON(&user); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
-
-    if err := uh.UserService.CreateUser(&user); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
-        return
-    }
-
-    c.JSON(http.StatusCreated, user)
+	var user models.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := uh.UserService.CreateUser(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, user)
 }
 
-// GetAllUsers retrieves all users
-// @Summary Get all users
-// @Description Retrieve all users from the database
-// @Tags users
-// @Produce json
-// @Success 200 {array} models.User
-// @Failure 500 {object} gin.H
-// @Router /api/v1/users [get]
+
 func (uh *UserHandler) GetAllUsers(c *gin.Context) {
-    users, err := uh.UserService.GetAllUsers()
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
-        return
-    }
+	// Get query parameters
+	queryParams := c.Request.URL.Query()
+	offset, _ := strconv.Atoi(queryParams.Get("offset"))
+	limit, _ := strconv.Atoi(queryParams.Get("limit"))
 
-    c.JSON(http.StatusOK, users)
+	// Convert queryParams to map[string]string
+	params := make(map[string]string)
+	for key, values := range queryParams {
+		if len(values) > 0 {
+			params[key] = values[0]
+		}
+	}
+
+	// Get all users with filtering, sorting, and pagination
+	users, total, err := uh.UserService.GetAllUsers(params, offset, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+		return
+	}
+
+	// Prepare response
+	response := gin.H{
+		"users": users,
+		"total": total,
+	}
+
+	// Send response
+	c.JSON(http.StatusOK, response)
 }
 
-func (uh *UserHandler) GetUserByID(c *gin.Context) {
-    userID := c.Param("id")
-
-    // Parse userID to uint
-    id, err := strconv.ParseUint(userID, 10, 64)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-        return
-    }
-
-    // Convert uint64 to uint
-    uid := uint(id)
-
-    user, err := uh.UserService.GetUserByID(uid)
-    if err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-        return
-    }
-
-    c.JSON(http.StatusOK, user)
-}
-
-// UpdateUser updates an existing user
-// @Summary Update a user
-// @Description Update an existing user with the provided details
+// GetAllUsers godoc
+// @Summary Get all users
+// @Description Retrieve all users with filtering, sorting, and pagination
 // @Tags users
 // @Accept json
 // @Produce json
-// @Param id path string true "User ID"
-// @Param user body models.User true "User object with updated details"
-// @Success 200 {object} models.User
-// @Failure 400 {object} gin.H
-// @Failure 404 {object} gin.H
-// @Failure 500 {object} gin.H
-// @Router /api/v1/users/{id} [put]
-func (uh *UserHandler) UpdateUser(c *gin.Context) {
-    userID := c.Param("id")
+// @Param offset query integer false "Offset for pagination"
+// @Param limit query integer false "Limit for pagination"
+// @Success 200 {object} gin.H{"users":array,"total":integer} "List of users and total count"
+// @Failure 500 {object} gin.H{"error":string} "Internal server error"
+// @Router /users [get]
+func (uh *UserHandler) GetAllUser(c *gin.Context) {
+	// Get query parameters
+	queryParams := c.Request.URL.Query()
+	offset, _ := strconv.Atoi(queryParams.Get("offset"))
+	limit, _ := strconv.Atoi(queryParams.Get("limit"))
 
-    // Parse userID to uint
-    id, err := strconv.ParseUint(userID, 10, 64)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-        return
-    }
+	// Convert queryParams to map[string]string
+	params := make(map[string]string)
+	for key, values := range queryParams {
+		if len(values) > 0 {
+			params[key] = values[0]
+		}
+	}
 
-    // Convert uint64 to uint
-    uid := uint(id)
+	// Get all users with filtering, sorting, and pagination
+	users, total, err := uh.UserService.GetAllUsers(params, offset, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
+		return
+	}
 
-    // Fetch the user from the database
-    user, err := uh.UserService.GetUserByID(uid)
-    if err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-        return
-    }
+	// Prepare response
+	response := gin.H{
+		"users": users,
+		"total": total,
+	}
 
-    // Bind JSON request body to user struct
-    if err := c.ShouldBindJSON(&user); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
-
-    // Update the user in the database
-    if err := uh.UserService.UpdateUser(user); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
-        return
-    }
-
-    c.JSON(http.StatusOK, user)
+	// Send response
+	c.JSON(http.StatusOK, response)
 }
 
-// DeleteUser deletes a user
-// @Summary Delete a user
-// @Description Delete a user by its ID
-// @Tags users
+
+
+// GetUserByID godoc
+// @Summary Get a user by ID
+// @Description Get a user by ID
+// @Tags Users
+// @Accept json
 // @Produce json
-// @Param id path string true "User ID"
-// @Success 200 {string} string "User deleted successfully"
-// @Failure 400 {object} gin.H
+// @Param id path int true "User ID"
+// @Success 200 {object} models.User
 // @Failure 404 {object} gin.H
-// @Failure 500 {object} gin.H
+// @Router /api/v1/users/{id} [get]
+func (uh *UserHandler) GetUserByID(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+	user, err := uh.UserService.GetUserByID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+	c.JSON(http.StatusOK, user)
+}
+
+// UpdateUser godoc
+// @Summary Update an existing user
+// @Description Update an existing user
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Param user body models.User true "User"
+// @Success 200 {object} models.User
+// @Failure 400 {object} gin.H
+// @Router /api/v1/users/{id} [put]
+func (uh *UserHandler) UpdateUser(c *gin.Context) {
+	var user models.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := uh.UserService.UpdateUser(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, user)
+}
+
+// DeleteUser godoc
+// @Summary Delete a user
+// @Description Delete a user
+// @Tags Users
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 204
+// @Failure 404 {object} gin.H
 // @Router /api/v1/users/{id} [delete]
 func (uh *UserHandler) DeleteUser(c *gin.Context) {
-    userID := c.Param("id")
+	var user models.User
+	if err := c.ShouldBindJSON(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := uh.UserService.DeleteUser(&user); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+	c.JSON(http.StatusNoContent, nil)
+}
 
-    // Parse userID to uint
-    id, err := strconv.ParseUint(userID, 10, 64)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-        return
-    }
+// Login godoc
+// @Summary User login
+// @Description User login
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param login body LoginRequest true "Login"
+// @Success 200 {object} gin.H
+// @Failure 401 {object} gin.H
+// @Router /api/v1/auth/login [post]
+func (uh *UserHandler) Login(c *gin.Context) {
+	var loginRequest LoginRequest
+	if err := c.ShouldBindJSON(&loginRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	user, err := uh.UserService.AuthenticateUser(loginRequest.Email, loginRequest.Password)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		return
+	}
+	token, err := uh.UserService.GenerateJWT(user.Email, user.Role)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"token": token})
+}
 
-    // Convert uint64 to uint
-    uid := uint(id)
+// ForgotPassword godoc
+// @Summary Forgot password
+// @Description Forgot password
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param forgotPassword body ForgotPasswordRequest true "Forgot Password"
+// @Success 200 {object} gin.H
+// @Failure 400 {object} gin.H
+// @Router /api/v1/auth/forgot-password [post]
+func (uh *UserHandler) ForgotPassword(c *gin.Context) {
+	var forgotPasswordRequest ForgotPasswordRequest
+	if err := c.ShouldBindJSON(&forgotPasswordRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	token, err := uh.UserService.ForgotPassword(forgotPasswordRequest.Email)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"reset_token": token})
+}
 
-    // Fetch the user from the database
-    user, err := uh.UserService.GetUserByID(uid)
-    if err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-        return
-    }
+// ResetPassword godoc
+// @Summary Reset password
+// @Description Reset password
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param resetPassword body ResetPasswordRequest true "Reset Password"
+// @Success 200 {object} gin.H
+// @Failure 400 {object} gin.H
+// @Router /api/v1/auth/reset-password [post]
+func (uh *UserHandler) ResetPassword(c *gin.Context) {
+	var resetPasswordRequest ResetPasswordRequest
+	if err := c.ShouldBindJSON(&resetPasswordRequest); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := uh.UserService.ResetPassword(resetPasswordRequest.Email, resetPasswordRequest.NewPassword); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Password reset successfully"})
+}
 
-    // Delete the user from the database
-    err = uh.UserService.DeleteUser(user)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
-        return
-    }
+// Logout godoc
+// @Summary User logout
+// @Description User logout
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Success 200 {object} gin.H
+// @Router /api/v1/auth/logout [post]
+func (uh *UserHandler) Logout(c *gin.Context) {
+	// For stateless JWT, logout can be a client-side operation.
+	c.JSON(http.StatusOK, gin.H{"message": "Logout successful"})
+}
 
-    c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
+// GetUserProfile godoc
+// @Summary Get user profile
+// @Description Get user profile
+// @Tags Secured
+// @Accept json
+// @Produce json
+// @Success 200 {object} models.User
+// @Failure 401 {object} gin.H
+// @Router /api/v1/secured/profile [get]
+func (uh *UserHandler) GetUserProfile(c *gin.Context) {
+	userEmail, exists := c.Get("userEmail")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "User email not found"})
+		return
+	}
+
+	user, err := uh.UserService.GetUserByEmail(userEmail.(string))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"user": user})
+}
+
+type LoginRequest struct {
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type ForgotPasswordRequest struct {
+	Email string `json:"email" binding:"required"`
+}
+
+type ResetPasswordRequest struct {
+	Email       string `json:"email" binding:"required"`
+	NewPassword string `json:"newPassword" binding:"required"`
 }

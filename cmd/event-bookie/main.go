@@ -62,7 +62,7 @@ func main() {
     }
 
     // Initialize router with gormDB
-    r := router.NewRouter(gormDB)
+    r := router.SetupRouter(gormDB)
 
     // Start HTTP server
     port := conf.Port

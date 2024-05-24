@@ -1,49 +1,76 @@
 package repository
 
 import (
-    "github.com/rowjay007/event-bookie/internal/models"
-    "gorm.io/gorm"
+	"github.com/rowjay007/event-bookie/internal/models"
+	"gorm.io/gorm"
 )
 
-// UserRepository handles user-related database operations
 type UserRepository struct {
-    DB *gorm.DB
+	DB *gorm.DB
 }
 
-// NewUserRepository creates a new UserRepository instance
 func NewUserRepository(db *gorm.DB) *UserRepository {
-    return &UserRepository{DB: db}
+	return &UserRepository{DB: db}
 }
 
-// Create creates a new user in the database
 func (ur *UserRepository) Create(user *models.User) error {
-    return ur.DB.Create(user).Error
+	return ur.DB.Create(user).Error
 }
 
-// GetAll retrieves all users from the database
-func (ur *UserRepository) GetAll() ([]models.User, error) {
+func (ur *UserRepository) GetAll(queryParams map[string]string, offset, limit int) ([]models.User, int64, error) {
     var users []models.User
-    if err := ur.DB.Find(&users).Error; err != nil {
-        return nil, err
+    var total int64
+
+    // Build the query
+    query := ur.DB.Model(&models.User{})
+
+    // Apply filtering
+    if name := queryParams["name"]; name != "" {
+        query = query.Where("name LIKE ?", "%"+name+"%")
     }
-    return users, nil
+
+    // Apply sorting
+    if sortBy := queryParams["sort_by"]; sortBy != "" {
+        order := "ASC"
+        if sortOrder := queryParams["sort_order"]; sortOrder == "desc" {
+            order = "DESC"
+        }
+        query = query.Order(sortBy + " " + order)
+    }
+
+    // Count total before pagination
+    if err := query.Count(&total).Error; err != nil {
+        return nil, 0, err
+    }
+
+    // Apply pagination
+    query = query.Offset(offset).Limit(limit)
+
+    // Execute the query
+    if err := query.Find(&users).Error; err != nil {
+        return nil, 0, err
+    }
+
+    return users, total, nil
 }
 
-// GetByID retrieves a user by its ID
+
 func (ur *UserRepository) GetByID(id uint) (*models.User, error) {
-    var user models.User
-    if err := ur.DB.First(&user, id).Error; err != nil {
-        return nil, err
-    }
-    return &user, nil
+	var user models.User
+	err := ur.DB.First(&user, id).Error
+	return &user, err
 }
 
-// Update updates an existing user in the database
+func (ur *UserRepository) GetByEmail(email string) (*models.User, error) {
+	var user models.User
+	err := ur.DB.Where("email = ?", email).First(&user).Error
+	return &user, err
+}
+
 func (ur *UserRepository) Update(user *models.User) error {
-    return ur.DB.Save(user).Error
+	return ur.DB.Save(user).Error
 }
 
-// Delete deletes a user from the database
 func (ur *UserRepository) Delete(user *models.User) error {
-    return ur.DB.Delete(user).Error
+	return ur.DB.Delete(user).Error
 }

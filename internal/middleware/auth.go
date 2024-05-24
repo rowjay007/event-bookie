@@ -11,7 +11,6 @@ import (
 // AuthMiddleware is a middleware function to authenticate requests
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		// Get the Authorization header
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})
@@ -19,7 +18,6 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Check if the token is in the format "Bearer {token}"
 		tokenString := strings.TrimSpace(strings.Replace(authHeader, "Bearer", "", 1))
 		if tokenString == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization token required"})
@@ -27,7 +25,6 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Parse and validate the token
 		claims, err := utils.ParseToken(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
@@ -35,16 +32,13 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Set the user ID and role in the context for further handlers to use
-		c.Set("userID", claims.UserID)
+		c.Set("userEmail", claims.Email)
 		c.Set("userRole", claims.Role)
 
-		// Continue to the next handler
 		c.Next()
 	}
 }
 
-// RoleMiddleware ensures the user has the required role
 func RoleMiddleware(requiredRoles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userRole, exists := c.Get("userRole")
@@ -54,9 +48,15 @@ func RoleMiddleware(requiredRoles ...string) gin.HandlerFunc {
 			return
 		}
 
-		// Check if the userRole is in the requiredRoles
+		userRoleStr, ok := userRole.(string)
+		if !ok {
+			c.JSON(http.StatusForbidden, gin.H{"error": "Invalid role type"})
+			c.Abort()
+			return
+		}
+
 		for _, role := range requiredRoles {
-			if userRole == role {
+			if userRoleStr == role {
 				c.Next()
 				return
 			}

@@ -6,32 +6,41 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"golang.org/x/crypto/bcrypt"
 )
 
-// jwtSecret should be securely stored in your environment variables
 var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
-// Claims defines the custom claims for the JWT token
 type Claims struct {
-	UserID uint   `json:"user_id"`
-	Role   string `json:"role"` // Add role to claims
+	Email string `json:"email"`
+	Role  string `json:"role"` 
 	jwt.StandardClaims
 }
 
-// GenerateToken generates a new JWT token for a given user ID and role
-func GenerateToken(userID uint, role string) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
-		UserID: userID,
-		Role:   role,
+func GenerateJWT(email, role string) (string, error) {
+	claims := &Claims{
+		Email: email,
+		Role:  role,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), // Customize expiration time
+			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), 
 		},
-	})
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(jwtSecret)
 	if err != nil {
 		return "", err
 	}
 	return tokenString, nil
+}
+
+func GenerateResetToken() (string, error) {
+	tokenBytes := make([]byte, 32)
+	_, err := bcrypt.GenerateFromPassword(tokenBytes, bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+	return string(tokenBytes), nil
 }
 
 // ParseToken parses and validates a JWT token
