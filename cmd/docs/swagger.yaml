@@ -174,21 +174,43 @@ paths:
       - Secured
   /api/v1/users:
     get:
-      description: Retrieve all users from the database
-      produces:
-      - application/json
+      description: Get all users with optional filtering, sorting, and pagination
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Filter by email
+        in: query
+        name: email
+        type: string
+      - description: Sort by field (e.g., name, email)
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (asc or desc)
+        in: query
+        name: sort_order
+        type: string
+      - description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit for pagination
+        in: query
+        name: limit
+        type: integer
       responses:
         "200":
-          description: OK
+          description: Users and total count
           schema:
-            items:
-              $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.User'
-            type: array
+            additionalProperties: true
+            type: object
         "500":
-          description: Internal Server Error
+          description: Failed to fetch users
           schema:
             $ref: '#/definitions/gin.H'
-      summary: Get all users
+      summary: Get all users with filtering, sorting, and pagination
       tags:
       - users
   /api/v1/users/{id}:
