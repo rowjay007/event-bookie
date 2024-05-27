@@ -20,7 +20,7 @@ func NewCategoryHandler(categoryService *service.CategoryService) *CategoryHandl
 // CreateCategory godoc
 // @Summary Create a new category
 // @Description Create a new category
-// @Tags categories
+// @Tags Categories
 // @Accept json
 // @Produce json
 // @Param category body models.Category true "Category"
@@ -44,7 +44,7 @@ func (ch *CategoryHandler) CreateCategory(c *gin.Context) {
 // GetAllCategories godoc
 // @Summary Get all categories with filtering, sorting, and pagination
 // @Description Get all categories with optional filtering, sorting, and pagination
-// @Tags categories
+// @Tags Categories
 // @Param name query string false "Filter by name"
 // @Param sort_by query string false "Sort by field (e.g., name)"
 // @Param sort_order query string false "Sort order (asc or desc)"
@@ -106,7 +106,7 @@ func (ch *CategoryHandler) GetAllCategories(c *gin.Context) {
 // GetCategoryByID godoc
 // @Summary Get a category by ID
 // @Description Get a category by ID
-// @Tags categories
+// @Tags Categories
 // @Produce json
 // @Param id path int true "Category ID"
 // @Success 200 {object} models.Category
@@ -132,7 +132,7 @@ func (ch *CategoryHandler) GetCategoryByID(c *gin.Context) {
 // UpdateCategory godoc
 // @Summary Update a category
 // @Description Update a category
-// @Tags categories
+// @Tags Categories
 // @Accept json
 // @Produce json
 // @Param id path int true "Category ID"
@@ -167,7 +167,7 @@ func (ch *CategoryHandler) UpdateCategory(c *gin.Context) {
 // DeleteCategory godoc
 // @Summary Delete a category
 // @Description Delete a category
-// @Tags categories
+// @Tags Categories
 // @Param id path int true "Category ID"
 // @Success 204 {object} gin.H "Category deleted"
 // @Failure 404 {object} gin.H "Category not found"

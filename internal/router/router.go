@@ -14,15 +14,17 @@ import (
 func SetupRouter(db *gorm.DB) *gin.Engine {
 	r := gin.Default()
 
-	// Initialize user components
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
 
-	// Initialize category components
 	categoryRepo := repository.NewCategoryRepository(db)
 	categoryService := service.NewCategoryService(categoryRepo)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
+
+	organizerRepo := repository.NewOrganizerRepository(db)
+	organizerService := service.NewOrganizerService(organizerRepo)
+	organizerHandler := handlers.NewOrganizerHandler(organizerService)
 
 	r.GET("/", handlers.WelcomeHandler)
 	r.POST("/api/v1/signup", userHandler.CreateUser)
@@ -38,6 +40,26 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			userGroup.GET("/", userHandler.GetAllUsers)
 		}
 
+		categoryGroup := apiV1.Group("/categories")
+		categoryGroup.Use(middleware.AuthMiddleware())
+		{
+			categoryGroup.GET("/", categoryHandler.GetAllCategories)
+			categoryGroup.POST("/", categoryHandler.CreateCategory)
+			categoryGroup.GET("/:id", categoryHandler.GetCategoryByID)
+			categoryGroup.PUT("/:id", categoryHandler.UpdateCategory)
+			categoryGroup.DELETE("/:id", categoryHandler.DeleteCategory)
+		}
+
+		organizerGroup := apiV1.Group("/organizers")
+		organizerGroup.Use(middleware.AuthMiddleware())
+		{
+			organizerGroup.GET("/", organizerHandler.GetAllOrganizers)
+				organizerGroup.POST("/", organizerHandler.CreateOrganizer)
+				organizerGroup.GET("/:id", organizerHandler.GetOrganizerByID)
+				organizerGroup.PUT("/:id", organizerHandler.UpdateOrganizer)
+				organizerGroup.DELETE("/:id", organizerHandler.DeleteOrganizer)
+		}
+
 		authGroup := apiV1.Group("/auth")
 		{
 			authGroup.POST("/login", userHandler.Login)
@@ -50,17 +72,6 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		securedGroup.Use(middleware.AuthMiddleware())
 		{
 			securedGroup.GET("/profile", userHandler.GetUserProfile)
-		}
-
-		// Category routes
-		categoryGroup := apiV1.Group("/categories")
-		categoryGroup.Use(middleware.AuthMiddleware())
-		{
-			categoryGroup.POST("/", categoryHandler.CreateCategory)
-			categoryGroup.GET("/", categoryHandler.GetAllCategories)
-			categoryGroup.GET("/:id", categoryHandler.GetCategoryByID)
-			categoryGroup.PUT("/:id", categoryHandler.UpdateCategory)
-			categoryGroup.DELETE("/:id", categoryHandler.DeleteCategory)
 		}
 	}
 

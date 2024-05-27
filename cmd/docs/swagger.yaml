@@ -3,6 +3,30 @@ definitions:
   gin.H:
     additionalProperties: {}
     type: object
+  github_com_rowjay007_event-bookie_internal_models.Category:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  github_com_rowjay007_event-bookie_internal_models.Organizer:
+    properties:
+      contact:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
   github_com_rowjay007_event-bookie_internal_models.User:
     properties:
       created_at:
@@ -153,6 +177,314 @@ paths:
       summary: Reset password
       tags:
       - Auth
+  /api/v1/categories:
+    get:
+      description: Get all categories with optional filtering, sorting, and pagination
+      parameters:
+      - description: Filter by name
+        in: query
+        name: name
+        type: string
+      - description: Sort by field (e.g., name)
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (asc or desc)
+        in: query
+        name: sort_order
+        type: string
+      - description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit for pagination
+        in: query
+        name: limit
+        type: integer
+      responses:
+        "200":
+          description: Categories and total count
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Failed to fetch categories
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Get all categories with filtering, sorting, and pagination
+      tags:
+      - Categories
+    post:
+      consumes:
+      - application/json
+      description: Create a new category
+      parameters:
+      - description: Category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Category'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Category'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Create a new category
+      tags:
+      - Categories
+  /api/v1/categories/{id}:
+    delete:
+      description: Delete a category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Category deleted
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Category not found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Failed to delete category
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Delete a category
+      tags:
+      - Categories
+    get:
+      description: Get a category by ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Category'
+        "404":
+          description: Category not found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Get a category by ID
+      tags:
+      - Categories
+    put:
+      consumes:
+      - application/json
+      description: Update a category
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Category
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Category'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Category'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Category not found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Failed to update category
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Update a category
+      tags:
+      - Categories
+  /api/v1/organizers:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves all organizers with optional filtering, sorting, and
+        pagination
+      parameters:
+      - description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit for pagination
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Retrieve all organizers
+      tags:
+      - Organizers
+    post:
+      consumes:
+      - application/json
+      description: Creates a new organizer with the provided details
+      parameters:
+      - description: Organizer object to be created
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Organizer'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Organizer'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Create a new organizer
+      tags:
+      - Organizers
+  /api/v1/organizers/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Deletes an organizer by ID
+      parameters:
+      - description: Organizer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Delete an organizer by ID
+      tags:
+      - Organizers
+    get:
+      consumes:
+      - application/json
+      description: Retrieves an organizer by ID
+      parameters:
+      - description: Organizer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Organizer'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Retrieve an organizer by ID
+      tags:
+      - Organizers
+    put:
+      consumes:
+      - application/json
+      description: Updates an existing organizer with the provided details
+      parameters:
+      - description: Organizer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated organizer object
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Organizer'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Organizer'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Update an existing organizer
+      tags:
+      - Organizers
   /api/v1/secured/profile:
     get:
       consumes:
