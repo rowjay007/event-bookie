@@ -26,6 +26,10 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	organizerService := service.NewOrganizerService(organizerRepo)
 	organizerHandler := handlers.NewOrganizerHandler(organizerService)
 
+	venueRepo := repository.NewVenueRepository(db)
+	venueService := service.NewVenueService(venueRepo)
+	venueHandler := handlers.NewVenueHandler(venueService)
+
 	r.GET("/", handlers.WelcomeHandler)
 	r.POST("/api/v1/signup", userHandler.CreateUser)
 
@@ -49,6 +53,17 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			categoryGroup.PUT("/:id", categoryHandler.UpdateCategory)
 			categoryGroup.DELETE("/:id", categoryHandler.DeleteCategory)
 		}
+
+		venueGroup := apiV1.Group("/venues")
+		venueGroup.Use(middleware.AuthMiddleware())
+		{
+			venueGroup.POST("/", venueHandler.CreateVenue)
+			venueGroup.GET("/", venueHandler.GetAllVenues)
+			venueGroup.GET("/:id", venueHandler.GetVenueByID)
+			venueGroup.PUT("/:id", venueHandler.UpdateVenue)
+			venueGroup.DELETE("/:id", venueHandler.DeleteVenue)
+		}
+
 
 		organizerGroup := apiV1.Group("/organizers")
 		organizerGroup.Use(middleware.AuthMiddleware())

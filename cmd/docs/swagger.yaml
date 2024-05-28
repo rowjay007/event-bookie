@@ -44,6 +44,21 @@ definitions:
       updated_at:
         type: string
     type: object
+  github_com_rowjay007_event-bookie_internal_models.Venue:
+    properties:
+      capacity:
+        type: integer
+      created_at:
+        type: string
+      id:
+        type: integer
+      location:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
   internal_handlers.ForgotPasswordRequest:
     properties:
       email:
@@ -648,4 +663,160 @@ paths:
       summary: Create a new user
       tags:
       - Users
+  /api/v1/venues:
+    get:
+      consumes:
+      - application/json
+      description: Get all venues with optional filtering, sorting, and pagination
+      parameters:
+      - description: Offset
+        in: query
+        name: offset
+        type: integer
+      - description: Limit
+        in: query
+        name: limit
+        type: integer
+      - description: Name
+        in: query
+        name: name
+        type: string
+      - description: Location
+        in: query
+        name: location
+        type: string
+      - description: Sort By
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort Order
+        in: query
+        name: sort_order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Venues and total count
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Get all venues
+      tags:
+      - Venues
+    post:
+      consumes:
+      - application/json
+      description: Create a new venue
+      parameters:
+      - description: Venue
+        in: body
+        name: venue
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Venue'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Venue'
+        "400":
+          description: Venue is invalid
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Create a new venue
+      tags:
+      - Venues
+  /api/v1/venues/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a venue by ID
+      parameters:
+      - description: Venue ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Venue deleted successfully
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Delete a venue by ID
+      tags:
+      - Venues
+    get:
+      consumes:
+      - application/json
+      description: Get a venue by ID
+      parameters:
+      - description: Venue ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Venue'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Get a venue by ID
+      tags:
+      - Venues
+    put:
+      consumes:
+      - application/json
+      description: Update an existing venue
+      parameters:
+      - description: Venue ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Venue
+        in: body
+        name: venue
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Venue'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Venue'
+        "400":
+          description: Venue is invalid
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Update an existing venue
+      tags:
+      - Venues
 swagger: "2.0"
