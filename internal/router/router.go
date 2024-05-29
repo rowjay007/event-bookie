@@ -30,6 +30,10 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	venueService := service.NewVenueService(venueRepo)
 	venueHandler := handlers.NewVenueHandler(venueService)
 
+	eventRepo := repository.NewEventRepository(db)
+	eventService := service.NewEventService(eventRepo)
+	eventHandler := handlers.NewEventHandler(eventService)
+
 	r.GET("/", handlers.WelcomeHandler)
 	r.POST("/api/v1/signup", userHandler.CreateUser)
 
@@ -64,15 +68,24 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			venueGroup.DELETE("/:id", venueHandler.DeleteVenue)
 		}
 
-
 		organizerGroup := apiV1.Group("/organizers")
 		organizerGroup.Use(middleware.AuthMiddleware())
 		{
 			organizerGroup.GET("/", organizerHandler.GetAllOrganizers)
-				organizerGroup.POST("/", organizerHandler.CreateOrganizer)
-				organizerGroup.GET("/:id", organizerHandler.GetOrganizerByID)
-				organizerGroup.PUT("/:id", organizerHandler.UpdateOrganizer)
-				organizerGroup.DELETE("/:id", organizerHandler.DeleteOrganizer)
+			organizerGroup.POST("/", organizerHandler.CreateOrganizer)
+			organizerGroup.GET("/:id", organizerHandler.GetOrganizerByID)
+			organizerGroup.PUT("/:id", organizerHandler.UpdateOrganizer)
+			organizerGroup.DELETE("/:id", organizerHandler.DeleteOrganizer)
+		}
+
+		eventGroup := apiV1.Group("/events")
+		eventGroup.Use(middleware.AuthMiddleware())
+		{
+			eventGroup.POST("/", eventHandler.CreateEvent)
+			eventGroup.GET("/", eventHandler.GetAllEvents)
+			eventGroup.GET("/:id", eventHandler.GetEventByID)
+			eventGroup.PUT("/:id", eventHandler.UpdateEvent)
+			eventGroup.DELETE("/:id", eventHandler.DeleteEvent)
 		}
 
 		authGroup := apiV1.Group("/auth")
