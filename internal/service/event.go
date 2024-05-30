@@ -17,13 +17,8 @@ func (es *EventService) CreateEvent(event *models.Event) error {
 	return es.EventRepo.Create(event)
 }
 
-
-func (es *EventService) GetAllEvents(params map[string]string, offset, limit int) ([]models.Event, int64, error) {
-	events, total, err := es.EventRepo.GetAll(params, offset, limit)
-	if err != nil {
-		return nil, 0, err
-	}
-	return events, total, nil
+func (es *EventService) GetAllEvents(queryParams map[string]string, offset, limit int) ([]models.Event, int64, error) {
+    return es.EventRepo.GetAll(queryParams, offset, limit)
 }
 
 

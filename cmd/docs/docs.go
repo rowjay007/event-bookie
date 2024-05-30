@@ -418,6 +418,24 @@ const docTemplate = `{
                         "description": "Limit for pagination",
                         "name": "limit",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by title",
+                        "name": "title",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort by field",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (asc or desc)",
+                        "name": "sort_order",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -579,9 +597,6 @@ const docTemplate = `{
             },
             "delete": {
                 "description": "Delete an event by ID",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -599,11 +614,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "Event deleted successfully",
-                        "schema": {
-                            "type": "string"
-                        }
+                    "204": {
+                        "description": "Event deleted successfully"
                     },
                     "400": {
                         "description": "Invalid event ID",

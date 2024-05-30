@@ -64,43 +64,43 @@ func (eh *EventHandler) CreateEvent(c *gin.Context) {
 	c.JSON(http.StatusCreated, event)
 }
 
-
 // @Summary Retrieve all events with optional filtering, sorting, and pagination
 // @Description Retrieve all events with optional filtering, sorting, and pagination
 // @Produce json
 // @Tags Events
 // @Param offset query integer false "Offset for pagination"
 // @Param limit query integer false "Limit for pagination"
+// @Param title query string false "Filter by title"
+// @Param sort_by query string false "Sort by field"
+// @Param sort_order query string false "Sort order (asc or desc)"
 // @Success 200 {object} gin.H "Events and total count"
 // @Failure 400 {object} gin.H "Invalid query parameters"
 // @Failure 500 {object} gin.H "Failed to fetch events"
 // @Router /api/v1/events [get]
 func (eh *EventHandler) GetAllEvents(c *gin.Context) {
-	queryParams := c.Request.URL.Query()
-	offset, _ := strconv.Atoi(queryParams.Get("offset"))
-	limit, _ := strconv.Atoi(queryParams.Get("limit"))
+    queryParams := c.Request.URL.Query()
+    offset, _ := strconv.Atoi(queryParams.Get("offset"))
+    limit, _ := strconv.Atoi(queryParams.Get("limit"))
 
-	// Construct a map of parameters
-	params := make(map[string]string)
-	for key, values := range queryParams {
-		if len(values) > 0 {
-			params[key] = values[0]
-		}
-	}
+    params := make(map[string]string)
+    for key, values := range queryParams {
+        if len(values) > 0 {
+            params[key] = values[0]
+        }
+    }
 
-	events, total, err := eh.EventService.GetAllEvents(params, offset, limit)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch events"})
-		return
-	}
+    events, total, err := eh.EventService.GetAllEvents(params, offset, limit)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch events"})
+        return
+    }
 
-	response := gin.H{
-		"events": events,
-		"total":  total,
-	}
+    response := gin.H{
+        "events": events,
+        "total":  total,
+    }
 
-	// Send the response
-	c.JSON(http.StatusOK, response)
+    c.JSON(http.StatusOK, response)
 }
 
 
@@ -190,25 +190,30 @@ func (eh *EventHandler) UpdateEvent(c *gin.Context) {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update event"})
         return
     }
+
     c.JSON(http.StatusOK, event)
 }
 
-
 // @Summary Delete an event by ID
 // @Description Delete an event by ID
-// @Tags Events
-// @Accept json
 // @Produce json
+// @Tags Events
 // @Param id path int true "Event ID"
-// @Success 200 {string} string "Event deleted successfully"
+// @Success 204 "Event deleted successfully"
 // @Failure 400 {object} gin.H "Invalid event ID"
 // @Failure 500 {object} gin.H "Failed to delete event"
 // @Router /api/v1/events/{id} [delete]
 func (eh *EventHandler) DeleteEvent(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid event ID"})
+		return
+	}
+
 	if err := eh.EventService.DeleteEvent(uint(id)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete event"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "Event deleted successfully"})
+
+	c.Status(http.StatusNoContent)
 }

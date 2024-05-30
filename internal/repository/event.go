@@ -16,39 +16,42 @@ func NewEventRepository(db *gorm.DB) *EventRepository {
 func (er *EventRepository) Create(event *models.Event) error {
 	return er.DB.Create(event).Error
 }
+func (er *EventRepository) GetAll(queryParams map[string]string, offset, limit int) ([]models.Event, int64, error) {
+    var events []models.Event
+    var total int64
 
-func (er *EventRepository) GetAll(params map[string]string, offset, limit int) ([]models.Event, int64, error) {
-	var events []models.Event
-	var total int64
+    query := er.DB.Model(&models.Event{})
 
-	query := er.DB.Model(&models.Event{})
+    if title := queryParams["title"]; title != "" {
+        query = query.Where("title LIKE ?", "%"+title+"%")
+    }
 
-	if title, ok := params["title"]; ok && title != "" {
-		query = query.Where("title LIKE ?", "%"+title+"%")
-	}
+    if description := queryParams["description"]; description != "" {
+        query = query.Where("description LIKE ?", "%"+description+"%")
+    }
 
-	if sortBy, ok := params["sort_by"]; ok && sortBy != "" {
-		order := "ASC"
-		if sortOrder, ok := params["sort_order"]; ok && sortOrder == "desc" {
-			order = "DESC"
-		}
-		query = query.Order(sortBy + " " + order)
-	}
+    if sortBy := queryParams["sort_by"]; sortBy != "" {
+        order := "ASC"
+        if sortOrder := queryParams["sort_order"]; sortOrder == "desc" {
+            order = "DESC"
+        }
+        query = query.Order(sortBy + " " + order)
+    }
 
-	if err := query.Count(&total).Error; err != nil {
-		return nil, 0, err
-	}
+    if err := query.Count(&total).Error; err != nil {
+        return nil, 0, err
+    }
 
-	query = query.Offset(offset).Limit(limit)
+    if offset >= 0 && limit > 0 {
+        query = query.Offset(offset).Limit(limit)
+    }
 
-	if err := query.Find(&events).Error; err != nil {
-		return nil, 0, err
-	}
+    if err := query.Find(&events).Error; err != nil {
+        return nil, 0, err
+    }
 
-	return events, total, nil
+    return events, total, nil
 }
-
-
 
 func (er *EventRepository) GetByID(id uint) (*models.Event, error) {
 	var event models.Event

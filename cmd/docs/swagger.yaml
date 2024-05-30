@@ -382,6 +382,18 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Filter by title
+        in: query
+        name: title
+        type: string
+      - description: Sort by field
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (asc or desc)
+        in: query
+        name: sort_order
+        type: string
       produces:
       - application/json
       responses:
@@ -431,8 +443,6 @@ paths:
       - Events
   /api/v1/events/{id}:
     delete:
-      consumes:
-      - application/json
       description: Delete an event by ID
       parameters:
       - description: Event ID
@@ -443,10 +453,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
+        "204":
           description: Event deleted successfully
-          schema:
-            type: string
         "400":
           description: Invalid event ID
           schema:
