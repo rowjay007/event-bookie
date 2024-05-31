@@ -4,7 +4,6 @@ import (
 	"time"
 )
 
-// Venue represents a venue entity
 type Venue struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	Name      string    `json:"name"`

@@ -4,7 +4,6 @@ import (
 	"time"
 )
 
-// Organizer represents an organizer entity
 type Organizer struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	Name      string    `json:"name"`

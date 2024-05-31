@@ -34,6 +34,12 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	eventService := service.NewEventService(eventRepo)
 	eventHandler := handlers.NewEventHandler(eventService)
 
+	bookingRepo := repository.NewBookingRepository(db)
+	bookingService := service.NewBookingService(bookingRepo)
+	bookingHandler := handlers.NewBookingHandler(bookingService)
+
+	
+
 	r.GET("/", handlers.WelcomeHandler)
 	r.POST("/api/v1/signup", userHandler.CreateUser)
 
@@ -87,6 +93,17 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			eventGroup.PUT("/:id", eventHandler.UpdateEvent)
 			eventGroup.DELETE("/:id", eventHandler.DeleteEvent)
 		}
+
+		bookingGroup := apiV1.Group("/bookings")
+		bookingGroup.Use(middleware.AuthMiddleware())
+		{
+			bookingGroup.GET("/", bookingHandler.GetAllBookings)
+			bookingGroup.POST("/", bookingHandler.CreateBooking)
+			bookingGroup.GET("/:id", bookingHandler.GetBookingByID)
+			bookingGroup.PUT("/:id", bookingHandler.UpdateBooking)
+			bookingGroup.DELETE("/:id", bookingHandler.DeleteBooking)
+		}
+
 
 		authGroup := apiV1.Group("/auth")
 		{

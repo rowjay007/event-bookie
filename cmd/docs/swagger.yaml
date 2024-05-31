@@ -3,6 +3,21 @@ definitions:
   gin.H:
     additionalProperties: {}
     type: object
+  github_com_rowjay007_event-bookie_internal_models.Booking:
+    properties:
+      created_at:
+        type: string
+      event_id:
+        type: integer
+      id:
+        type: integer
+      status:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
   github_com_rowjay007_event-bookie_internal_models.Category:
     properties:
       created_at:
@@ -215,6 +230,174 @@ paths:
       summary: Reset password
       tags:
       - Auth
+  /api/v1/bookings:
+    get:
+      consumes:
+      - application/json
+      description: Get all bookings with optional filtering, sorting, and pagination
+      parameters:
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - description: Filter by user ID
+        in: query
+        name: user_id
+        type: integer
+      - description: Filter by event ID
+        in: query
+        name: event_id
+        type: integer
+      - description: Field to sort by
+        in: query
+        name: sort_by
+        type: string
+      - description: Sort order (asc or desc)
+        in: query
+        name: sort_order
+        type: string
+      - description: Offset for pagination
+        in: query
+        name: offset
+        type: integer
+      - description: Limit for pagination
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Bookings and total count
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Failed to fetch bookings
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Get all bookings
+      tags:
+      - Bookings
+    post:
+      consumes:
+      - application/json
+      description: Create a new booking
+      parameters:
+      - description: Booking to create
+        in: body
+        name: booking
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Booking'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Booking'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Failed to create booking
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Create a new booking
+      tags:
+      - Bookings
+  /api/v1/bookings/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a booking by ID
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Booking deleted successfully
+          schema:
+            $ref: '#/definitions/gin.H'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Failed to delete booking
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Delete a booking by ID
+      tags:
+      - Bookings
+    get:
+      consumes:
+      - application/json
+      description: Get booking by ID
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Booking'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Failed to fetch booking
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Get booking by ID
+      tags:
+      - Bookings
+    put:
+      consumes:
+      - application/json
+      description: Update an existing booking
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Booking to update
+        in: body
+        name: booking
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Booking'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Booking'
+        "400":
+          description: Invalid input
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Failed to update booking
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Update an existing booking
+      tags:
+      - Bookings
   /api/v1/categories:
     get:
       description: Get all categories with optional filtering, sorting, and pagination

@@ -4,7 +4,6 @@ import (
 	"time"
 )
 
-// Booking represents a booking entity
 type Booking struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	UserID    uint      `json:"user_id"`

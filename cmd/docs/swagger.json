@@ -156,6 +156,260 @@
                 }
             }
         },
+        "/api/v1/bookings": {
+            "get": {
+                "description": "Get all bookings with optional filtering, sorting, and pagination",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Get all bookings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by status",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by user ID",
+                        "name": "user_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Filter by event ID",
+                        "name": "event_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Field to sort by",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort order (asc or desc)",
+                        "name": "sort_order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Offset for pagination",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Limit for pagination",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Bookings and total count",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch bookings",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new booking",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Create a new booking",
+                "parameters": [
+                    {
+                        "description": "Booking to create",
+                        "name": "booking",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_models.Booking"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_models.Booking"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to create booking",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/bookings/{id}": {
+            "get": {
+                "description": "Get booking by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Get booking by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Booking ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_models.Booking"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to fetch booking",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update an existing booking",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Update an existing booking",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Booking ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Booking to update",
+                        "name": "booking",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_models.Booking"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_models.Booking"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to update booking",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a booking by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bookings"
+                ],
+                "summary": "Delete a booking by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Booking ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Booking deleted successfully",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to delete booking",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/categories": {
             "get": {
                 "description": "Get all categories with optional filtering, sorting, and pagination",
@@ -1344,6 +1598,29 @@
         "gin.H": {
             "type": "object",
             "additionalProperties": {}
+        },
+        "github_com_rowjay007_event-bookie_internal_models.Booking": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "event_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
         },
         "github_com_rowjay007_event-bookie_internal_models.Category": {
             "type": "object",
