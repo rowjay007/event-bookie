@@ -8,12 +8,13 @@ color = true # colorize logs
 clear_screen = true # clear screen when logging
 
 [build]
-  bin = "tmp/main" # path to the binary to run
+  bin = "main" # path to the binary to run
+  cmd = "go build -o {{.bin}}" # build command
   exclude_dir = ["tmp", "vendor", "node_modules", ".git", ".vscode"] # directories to exclude from watching
 
 [[watcher]]
   paths = ["."] # watch these files
 
 [[runner]]
-  command = "tmp/main" # command to restart when something changes
+  command = "main" # command to restart when something changes
   args = []
