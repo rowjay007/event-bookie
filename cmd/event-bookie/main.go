@@ -24,7 +24,7 @@ import (
 // @title Event Bookie API
 // @version 1.0
 // @description The Event Bookie API is a powerful platform designed to streamline event management and booking processes. It provides a comprehensive set of features for creating, managing, and discovering events, handling bookings, managing venues, processing payments, and facilitating organizer interactions.
-//
+// @termsOfService http://swagger.io/terms/
 // @license.name MIT
 // @license.url https://opensource.org/licenses/MIT
 //

@@ -1,18 +1,44 @@
-# Working directory (set to project root)
-root = "."
-
-# Temporary directory for builds (defaults to ./tmp)
-tmp_dir = "tmp"
+# Config file for Air
+# See full configuration at https://github.com/cosmtrek/air#configuration
 
 [build]
-  # Build command using go build with output to temporary directory
-  cmd = "go build -o ./tmp/event-bookie ./cmd/event-bookie/main.go"
+# Configuring the build command
+cmd = "go build -o ./bin/event-bookie ./cmd/event-bookie"
+# Binary output path
+bin = "bin/event-bookie"
+# Command to run the binary
+full_bin = "./bin/event-bookie"
+# Number of milliseconds to wait before restarting the application (default is 0)
+delay = 1000
+# File extensions to include in watching
+include_ext = ["go", "tpl", "tmpl", "html", "js", "json", "yaml", "yml", "sql"]
+# File extensions to exclude from watching
+exclude_ext = ["tmp", "swp", "log"]
+# Directories to watch for changes
+watch_dirs = ["."]
+# Directories to ignore for changes
+ignore_dirs = ["vendor", "node_modules", "bin", ".git", ".idea", ".vscode", "tests"]
+# Patterns to exclude from watching
+exclude_dirs = []
 
-  # Include all go files and exclude test files
-  include_ext = ["go"]
-  exclude_regex = ["_test\\.go"]
+[log]
+# Log level (default is "info")
+level = "debug"
+# Log file path (default is empty)
+file = ""
 
-  # Watch all directories within the project (except for some specific ones)
-  include_dir = ["./", "config/", "internal/", "pkg/", "router/"]
-  exclude_dir = ["docs/", "migrations/", "tests/"]
+[header]
+# Header output
+pattern = "Reloading..."
 
+# You can also set environment variables here
+[env]
+# Environment variables to set for the running application
+APP_ENV = "development"
+
+# Custom scripts to run before/after the command (default is empty)
+[custom]
+before_build = ""
+after_build = ""
+before_run = ""
+after_run = ""

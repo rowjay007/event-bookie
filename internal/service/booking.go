@@ -32,3 +32,4 @@ func (bs *BookingService) UpdateBooking(booking *models.Booking) error {
 func (bs *BookingService) DeleteBooking(id uint) error {
 	return bs.BookingRepo.Delete(id)
 }
+
