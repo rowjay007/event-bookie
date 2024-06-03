@@ -20,6 +20,10 @@ func (ps *PaymentService) CreatePayment(payment *models.Payment) error {
     return nil
 }
 
+func (ps *PaymentService) GetAllPayments(params map[string]string, offset, limit int, sort, order, filter string) ([]models.Payment, int64, error) {
+    return ps.PaymentRepo.GetAll(params, offset, limit, sort, order, filter)
+}
+
 
 func (ps *PaymentService) GetPaymentByID(id uint) (*models.Payment, error) {
     return ps.PaymentRepo.GetByID(id)
@@ -33,6 +37,4 @@ func (ps *PaymentService) DeletePayment(id uint) error {
     return ps.PaymentRepo.Delete(id)
 }
 
-func (ps *PaymentService) GetAllPayments(params map[string]string, offset, limit int) ([]models.Payment, int64, error) {
-    return ps.PaymentRepo.GetAll(params, offset, limit)
-}
+
