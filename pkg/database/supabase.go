@@ -32,7 +32,7 @@ func NewDB(config *config.Config, logger *logrus.Logger) (*sql.DB, error) {
 // ApplyMigrations applies database migrations
 func ApplyMigrations(config *config.Config, logger *logrus.Logger) error {
 	driver := "postgres"
-	migrationsPath := "file://../migrations"
+	migrationsPath := "file://../../migrations"
 
 	// Initialize the migration instance
 	m, err := migrate.New(

@@ -9,12 +9,10 @@ import (
 	"github.com/rowjay007/event-bookie/internal/service"
 )
 
-// OrganizerHandler handles HTTP requests related to organizers
 type OrganizerHandler struct {
 	OrganizerService *service.OrganizerService
 }
 
-// NewOrganizerHandler creates a new instance of OrganizerHandler
 func NewOrganizerHandler(service *service.OrganizerService) *OrganizerHandler {
 	return &OrganizerHandler{OrganizerService: service}
 }
@@ -27,8 +25,8 @@ func NewOrganizerHandler(service *service.OrganizerService) *OrganizerHandler {
 // @Produce json
 // @Param input body models.Organizer true "Organizer object to be created"
 // @Success 201 {object} models.Organizer
-// @Failure 400 {object} gin.H
-// @Failure 500 {object} gin.H
+// @Failure 400 {object} gin.H "Organizer information is invalid"
+// @Failure 500 {object} gin.H "Failed to create organizer"
 // @Router /api/v1/organizers [post]
 func (oh *OrganizerHandler) CreateOrganizer(c *gin.Context) {
 	var organizer models.Organizer
@@ -51,8 +49,9 @@ func (oh *OrganizerHandler) CreateOrganizer(c *gin.Context) {
 // @Produce json
 // @Param offset query int false "Offset for pagination"
 // @Param limit query int false "Limit for pagination"
-// @Success 200 {object} gin.H
-// @Failure 500 {object} gin.H
+// @Success 200 {object} gin.H "An object containing organizers and total count"
+// @Failure 400 {object} gin.H "Invalid query params"
+// @Failure 500 {object} gin.H "Failed to fetch organizers"
 // @Router /api/v1/organizers [get]
 func (oh *OrganizerHandler) GetAllOrganizers(c *gin.Context) {
 	queryParams := c.Request.URL.Query()
@@ -87,8 +86,8 @@ func (oh *OrganizerHandler) GetAllOrganizers(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Organizer ID"
 // @Success 200 {object} models.Organizer
-// @Failure 404 {object} gin.H
-// @Failure 500 {object} gin.H
+// @Failure 404 {object} gin.H "Organizer not found"
+// @Failure 500 {object} gin.H "Failed to fetch organizer"
 // @Router /api/v1/organizers/{id} [get]
 func (oh *OrganizerHandler) GetOrganizerByID(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
@@ -109,9 +108,9 @@ func (oh *OrganizerHandler) GetOrganizerByID(c *gin.Context) {
 // @Param id path int true "Organizer ID"
 // @Param input body models.Organizer true "Updated organizer object"
 // @Success 200 {object} models.Organizer
-// @Failure 400 {object} gin.H
-// @Failure 404 {object} gin.H
-// @Failure 500 {object} gin.H
+// @Failure 400 {object} gin.H "Invalid request body"
+// @Failure 404 {object} gin.H "Organizer not found"
+// @Failure 500 {object} gin.H "Failed to update organizer"
 // @Router /api/v1/organizers/{id} [put]
 func (oh *OrganizerHandler) UpdateOrganizer(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
@@ -135,9 +134,9 @@ func (oh *OrganizerHandler) UpdateOrganizer(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path int true "Organizer ID"
-// @Success 200 {object} gin.H
-// @Failure 404 {object} gin.H
-// @Failure 500 {object} gin.H
+// @Success 200 {object} gin.H "Organizer deleted successfully"
+// @Failure 404 {object} gin.H	"Organizer not found"
+// @Failure 500 {object} gin.H	"Failed to delete organizer"
 // @Router /api/v1/organizers/{id} [delete]
 func (oh *OrganizerHandler) DeleteOrganizer(c *gin.Context) {
 id, _ := strconv.Atoi(c.Param("id"))

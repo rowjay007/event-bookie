@@ -1,15 +1,17 @@
 package models
 
 import (
-	"time"
+    "time"
 )
 
 type Payment struct {
-	ID        uint      `json:"id" gorm:"primaryKey"`
-	BookingID uint      `json:"booking_id"`
-	Amount    float64   `json:"amount"`
-	Status    string    `json:"status"`
-	Reference  string    `json:"reference"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+    ID            uint      `json:"id" gorm:"primaryKey"`
+    UserID        uint      `json:"user_id"`
+    BookingID     uint      `json:"booking_id"`
+    Amount        float64   `json:"amount"`
+    PaymentMethod string    `json:"payment_method"`
+    Status        string    `json:"status"`
+    TransactionID string    `json:"transaction_id"`
+    CreatedAt     time.Time `json:"created_at"`
+    UpdatedAt     time.Time `json:"updated_at"`
 }

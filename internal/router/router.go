@@ -6,6 +6,7 @@ import (
 	"github.com/rowjay007/event-bookie/internal/middleware"
 	"github.com/rowjay007/event-bookie/internal/repository"
 	"github.com/rowjay007/event-bookie/internal/service"
+	paymentService "github.com/rowjay007/event-bookie/internal/service/payment" 
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
@@ -38,7 +39,9 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	bookingService := service.NewBookingService(bookingRepo)
 	bookingHandler := handlers.NewBookingHandler(bookingService)
 
-	
+	paymentRepo := repository.NewPaymentRepository(db)
+	paymentService := paymentService.NewPaymentService(paymentRepo) 
+	paymentHandler := handlers.NewPaymentHandler(paymentService)
 
 	r.GET("/", handlers.WelcomeHandler)
 	r.POST("/api/v1/signup", userHandler.CreateUser)
@@ -104,6 +107,15 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			bookingGroup.DELETE("/:id", bookingHandler.DeleteBooking)
 		}
 
+		paymentGroup := apiV1.Group("/payments")
+		paymentGroup.Use(middleware.AuthMiddleware())
+		{
+			paymentGroup.POST("", paymentHandler.CreatePayment)
+			paymentGroup.GET("/:id", paymentHandler.GetPaymentByID)
+			paymentGroup.PUT("/:id", paymentHandler.UpdatePayment)
+			paymentGroup.DELETE("/:id", paymentHandler.DeletePayment)
+			paymentGroup.GET("", paymentHandler.GetAllPayments)
+		}
 
 		authGroup := apiV1.Group("/auth")
 		{

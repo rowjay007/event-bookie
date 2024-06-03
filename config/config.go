@@ -5,7 +5,6 @@ import (
     "os"
 )
 
-// Config holds the configuration values for the application
 type Config struct {
     Port           string
     DBUser         string
@@ -17,7 +16,6 @@ type Config struct {
     PaystackTestKey string
 }
 
-// NewConfig creates a new configuration instance
 func NewConfig() *Config {
     config := &Config{
         Port:           getEnv("PORT", "8080"),
