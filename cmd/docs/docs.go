@@ -1125,7 +1125,7 @@ const docTemplate = `{
         },
         "/api/v1/payments": {
             "get": {
-                "description": "Get all payments",
+                "description": "Get all payments with optional filtering and sorting",
                 "produces": [
                     "application/json"
                 ],
@@ -1145,26 +1145,41 @@ const docTemplate = `{
                         "description": "Limit",
                         "name": "limit",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort by field",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Order (asc or desc)",
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by field:value",
+                        "name": "filter",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "An object containing payments and total count",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_models.Payment"
-                            }
+                            "$ref": "#/definitions/gin.H"
                         }
                     },
                     "400": {
-                        "description": "Invalid offset or limit",
+                        "description": "Invalid query parameters",
                         "schema": {
                             "$ref": "#/definitions/gin.H"
                         }
                     },
                     "500": {
-                        "description": "Failed to get payments",
+                        "description": "Failed to retrieve payments",
                         "schema": {
                             "$ref": "#/definitions/gin.H"
                         }
@@ -1242,6 +1257,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_models.Payment"
                         }
                     },
+                    "400": {
+                        "description": "Invalid ID",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
                     "404": {
                         "description": "Payment not found",
                         "schema": {
@@ -1249,7 +1270,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Failed to get payment",
+                        "description": "Failed to retrieve payment",
                         "schema": {
                             "$ref": "#/definitions/gin.H"
                         }

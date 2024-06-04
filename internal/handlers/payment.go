@@ -53,9 +53,9 @@ func (ph *PaymentHandler) CreatePayment(c *gin.Context) {
 // @Param sort query string false "Sort by field"
 // @Param order query string false "Order (asc or desc)"
 // @Param filter query string false "Filter by field:value"
-// @Success 200 {object} gin.H models.Payment
-// @Failure 400 {object} gin.H "Invalid parameters"
-// @Failure 500 {object} gin.H "Failed to get payments"
+// @Success 200 {object} gin.H "An object containing payments and total count"
+// @Failure 400 {object} gin.H "Invalid query parameters"
+// @Failure 500 {object} gin.H "Failed to retrieve payments"
 // @Router /api/v1/payments [get]
 func (ph *PaymentHandler) GetAllPayments(c *gin.Context) {
     queryParams := c.Request.URL.Query()
@@ -117,8 +117,9 @@ func (ph *PaymentHandler) GetAllPayments(c *gin.Context) {
 // @Produce json
 // @Param id path int true "Payment ID"
 // @Success 200 {object} models.Payment
+// @Failure 400 {object} gin.H "Invalid ID"
 // @Failure 404 {object} gin.H "Payment not found"
-// @Failure 500 {object} gin.H "Failed to get payment"
+// @Failure 500 {object} gin.H "Failed to retrieve payment"
 // @Router /api/v1/payments/{id} [get]
 func (ph *PaymentHandler) GetPaymentByID(c *gin.Context) {
     idStr := c.Param("id")

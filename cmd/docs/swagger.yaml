@@ -890,7 +890,7 @@ paths:
       - Organizers
   /api/v1/payments:
     get:
-      description: Get all payments
+      description: Get all payments with optional filtering and sorting
       parameters:
       - description: Offset
         in: query
@@ -900,21 +900,31 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: Sort by field
+        in: query
+        name: sort
+        type: string
+      - description: Order (asc or desc)
+        in: query
+        name: order
+        type: string
+      - description: Filter by field:value
+        in: query
+        name: filter
+        type: string
       produces:
       - application/json
       responses:
         "200":
-          description: OK
+          description: An object containing payments and total count
           schema:
-            items:
-              $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Payment'
-            type: array
+            $ref: '#/definitions/gin.H'
         "400":
-          description: Invalid offset or limit
+          description: Invalid query parameters
           schema:
             $ref: '#/definitions/gin.H'
         "500":
-          description: Failed to get payments
+          description: Failed to retrieve payments
           schema:
             $ref: '#/definitions/gin.H'
       summary: Get all payments
@@ -991,12 +1001,16 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_models.Payment'
+        "400":
+          description: Invalid ID
+          schema:
+            $ref: '#/definitions/gin.H'
         "404":
           description: Payment not found
           schema:
             $ref: '#/definitions/gin.H'
         "500":
-          description: Failed to get payment
+          description: Failed to retrieve payment
           schema:
             $ref: '#/definitions/gin.H'
       summary: Get a payment by ID
