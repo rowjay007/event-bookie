@@ -17,12 +17,13 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
+
 func GenerateJWT(email, role string) (string, error) {
 	claims := &Claims{
 		Email: email,
-		Role:  role,
+		Role:  role, 
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(), 
+			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 		},
 	}
 
@@ -34,6 +35,7 @@ func GenerateJWT(email, role string) (string, error) {
 	return tokenString, nil
 }
 
+
 func GenerateResetToken() (string, error) {
 	tokenBytes := make([]byte, 32)
 	_, err := bcrypt.GenerateFromPassword(tokenBytes, bcrypt.DefaultCost)
@@ -43,7 +45,6 @@ func GenerateResetToken() (string, error) {
 	return string(tokenBytes), nil
 }
 
-// ParseToken parses and validates a JWT token
 func ParseToken(tokenString string) (*Claims, error) {
 	// Parse the token with the custom claims struct
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {

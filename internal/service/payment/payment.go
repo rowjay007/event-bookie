@@ -1,16 +1,23 @@
-package service
+// payment_service.go
+
+package payment
 
 import (
-	"github.com/rowjay007/event-bookie/internal/models"
-	"github.com/rowjay007/event-bookie/internal/repository"
+    "context"
+    "github.com/rowjay007/event-bookie/internal/models"
+    "github.com/rowjay007/event-bookie/internal/repository"
 )
 
 type PaymentService struct {
-    PaymentRepo *repository.PaymentRepository
+    PaymentRepo    *repository.PaymentRepository
+    PaystackClient PaystackService
 }
 
-func NewPaymentService(paymentRepo *repository.PaymentRepository) *PaymentService {
-    return &PaymentService{PaymentRepo: paymentRepo}
+func NewPaymentService(paymentRepo *repository.PaymentRepository, paystackClient PaystackService) *PaymentService {
+    return &PaymentService{
+        PaymentRepo:    paymentRepo,
+        PaystackClient: paystackClient,
+    }
 }
 
 func (ps *PaymentService) CreatePayment(payment *models.Payment) error {
@@ -24,7 +31,6 @@ func (ps *PaymentService) GetAllPayments(params map[string]string, offset, limit
     return ps.PaymentRepo.GetAll(params, offset, limit, sort, order, filter)
 }
 
-
 func (ps *PaymentService) GetPaymentByID(id uint) (*models.Payment, error) {
     return ps.PaymentRepo.GetByID(id)
 }
@@ -37,4 +43,10 @@ func (ps *PaymentService) DeletePayment(id uint) error {
     return ps.PaymentRepo.Delete(id)
 }
 
+func (ps *PaymentService) InitializePaystackPayment(ctx context.Context, amount float64, email string, reference string) (string, error) {
+    return ps.PaystackClient.InitializePayment(ctx, amount, email, reference)
+}
 
+func (ps *PaymentService) VerifyPaystackPayment(ctx context.Context, reference string) error {
+    return ps.PaystackClient.VerifyPayment(ctx, reference)
+}

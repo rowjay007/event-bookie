@@ -73,3 +73,5 @@ func (pr *PaymentRepository) Update(payment *models.Payment) error {
 func (pr *PaymentRepository) Delete(id uint) error {
     return pr.DB.Delete(&models.Payment{}, id).Error
 }
+
+

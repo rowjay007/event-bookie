@@ -1,20 +1,20 @@
 package handlers
 
 import (
-    "net/http"
-    "strconv"
+	"net/http"
+	"strconv"
 
-    "github.com/gin-gonic/gin"
-    "github.com/rowjay007/event-bookie/internal/models"
-    "github.com/rowjay007/event-bookie/internal/service/payment"
+	"github.com/gin-gonic/gin"
+	"github.com/rowjay007/event-bookie/internal/models"
+	"github.com/rowjay007/event-bookie/internal/service/payment"
 )
 
 type PaymentHandler struct {
-    PaymentService *service.PaymentService 
+	PaymentService *payment.PaymentService
 }
 
-func NewPaymentHandler(paymentService *service.PaymentService) *PaymentHandler {
-    return &PaymentHandler{PaymentService: paymentService}
+func NewPaymentHandler(paymentService *payment.PaymentService) *PaymentHandler {
+	return &PaymentHandler{PaymentService: paymentService}
 }
 
 // CreatePayment godoc
@@ -29,18 +29,18 @@ func NewPaymentHandler(paymentService *service.PaymentService) *PaymentHandler {
 // @Failure 500 {object} gin.H "Failed to create payment"
 // @Router /api/v1/payments [post]
 func (ph *PaymentHandler) CreatePayment(c *gin.Context) {
-    var payment models.Payment
-    if err := c.ShouldBindJSON(&payment); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	var payment models.Payment
+	if err := c.ShouldBindJSON(&payment); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-    if err := ph.PaymentService.CreatePayment(&payment); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
+	if err := ph.PaymentService.CreatePayment(&payment); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
-    c.JSON(http.StatusCreated, payment)
+	c.JSON(http.StatusCreated, payment)
 }
 
 // GetAllPayments godoc
@@ -58,57 +58,56 @@ func (ph *PaymentHandler) CreatePayment(c *gin.Context) {
 // @Failure 500 {object} gin.H "Failed to retrieve payments"
 // @Router /api/v1/payments [get]
 func (ph *PaymentHandler) GetAllPayments(c *gin.Context) {
-    queryParams := c.Request.URL.Query()
-    offsetStr := queryParams.Get("offset")
-    limitStr := queryParams.Get("limit")
-    sort := queryParams.Get("sort")
-    order := queryParams.Get("order")
-    filter := queryParams.Get("filter")
+	queryParams := c.Request.URL.Query()
+	offsetStr := queryParams.Get("offset")
+	limitStr := queryParams.Get("limit")
+	sort := queryParams.Get("sort")
+	order := queryParams.Get("order")
+	filter := queryParams.Get("filter")
 
-    var offset, limit int
-    var err error
+	var offset, limit int
+	var err error
 
-    if offsetStr != "" {
-        offset, err = strconv.Atoi(offsetStr)
-        if err != nil {
-            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offset"})
-            return
-        }
-    } else {
-        offset = -1
-    }
+	if offsetStr != "" {
+		offset, err = strconv.Atoi(offsetStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid offset"})
+			return
+		}
+	} else {
+		offset = -1
+	}
 
-    if limitStr != "" {
-        limit, err = strconv.Atoi(limitStr)
-        if err != nil {
-            c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit"})
-            return
-        }
-    } else {
-        limit = -1
-    }
+	if limitStr != "" {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid limit"})
+			return
+		}
+	} else {
+		limit = -1
+	}
 
-    params := make(map[string]string)
-    for key, values := range queryParams {
-        if len(values) > 0 {
-            params[key] = values[0]
-        }
-    }
+	params := make(map[string]string)
+	for key, values := range queryParams {
+		if len(values) > 0 {
+			params[key] = values[0]
+		}
+	}
 
-    payments, total, err := ph.PaymentService.GetAllPayments(params, offset, limit, sort, order, filter)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch payments"})
-        return
-    }
+	payments, total, err := ph.PaymentService.GetAllPayments(params, offset, limit, sort, order, filter)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch payments"})
+		return
+	}
 
-    response := gin.H{
-        "payments": payments,
-        "total":    total,
-    }
+	response := gin.H{
+		"payments": payments,
+		"total":    total,
+	}
 
-    c.JSON(http.StatusOK, response)
+	c.JSON(http.StatusOK, response)
 }
-
 
 // GetPaymentByID godoc
 // @Summary Get a payment by ID
@@ -122,20 +121,20 @@ func (ph *PaymentHandler) GetAllPayments(c *gin.Context) {
 // @Failure 500 {object} gin.H "Failed to retrieve payment"
 // @Router /api/v1/payments/{id} [get]
 func (ph *PaymentHandler) GetPaymentByID(c *gin.Context) {
-    idStr := c.Param("id")
-    id, err := strconv.Atoi(idStr)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
-        return
-    }
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
 
-    payment, err := ph.PaymentService.GetPaymentByID(uint(id))
-    if err != nil {
-        c.JSON(http.StatusNotFound, gin.H{"error": "Payment not found"})
-        return
-    }
+	payment, err := ph.PaymentService.GetPaymentByID(uint(id))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Payment not found"})
+		return
+	}
 
-    c.JSON(http.StatusOK, payment)
+	c.JSON(http.StatusOK, payment)
 }
 
 // UpdatePayment godoc
@@ -150,18 +149,18 @@ func (ph *PaymentHandler) GetPaymentByID(c *gin.Context) {
 // @Failure 500 {object} gin.H "Failed to update payment"
 // @Router /api/v1/payments/{id} [put]
 func (ph *PaymentHandler) UpdatePayment(c *gin.Context) {
-    var payment models.Payment
-    if err := c.ShouldBindJSON(&payment); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	var payment models.Payment
+	if err := c.ShouldBindJSON(&payment); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-    if err := ph.PaymentService.UpdatePayment(&payment); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update payment"})
-        return
-    }
+	if err := ph.PaymentService.UpdatePayment(&payment); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update payment"})
+		return
+	}
 
-    c.JSON(http.StatusOK, payment)
+	c.JSON(http.StatusOK, payment)
 }
 
 // DeletePayment godoc
@@ -175,18 +174,77 @@ func (ph *PaymentHandler) UpdatePayment(c *gin.Context) {
 // @Failure 500 {object} gin.H "Failed to delete payment"
 // @Router /api/v1/payments/{id} [delete]
 func (ph *PaymentHandler) DeletePayment(c *gin.Context) {
-    idStr := c.Param("id")
-    id, err := strconv.Atoi(idStr)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
-        return
-    }
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
+	}
 
-    if err := ph.PaymentService.DeletePayment(uint(id)); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete payment"})
-        return
-    }
+	if err := ph.PaymentService.DeletePayment(uint(id)); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete payment"})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"message": "Payment deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Payment deleted successfully"})
 }
 
+// InitializePaystackPayment godoc
+// @Summary Initialize a Paystack payment
+// @Description Initialize a Paystack payment
+// @Tags payments
+// @Accept json
+// @Produce json
+// @Param amount query float64 true "Amount"
+// @Param email query string true "Email"
+// @Param reference query string true "Reference"
+// @Success 200 {string} string "Authorization URL"
+// @Failure 400 {object} gin.H "Invalid parameters"
+// @Failure 500 {object} gin.H "Failed to initialize payment"
+// @Router /api/v1/payments/paystack [get]
+func (ph *PaymentHandler) InitializePaystackPayment(c *gin.Context) {
+    amountStr := c.Query("amount")
+    email := c.Query("email")
+    reference := c.Query("reference")
+
+    amount, err := strconv.ParseFloat(amountStr, 64)
+    if err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid amount"})
+        return
+    }
+
+    authorizationURL, err := ph.PaymentService.InitializePaystackPayment(c, amount, email, reference)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to initialize payment"})
+        return
+    }
+
+    c.JSON(http.StatusOK, authorizationURL)
+}
+
+// VerifyPaystackPayment godoc
+// @Summary Verify a Paystack payment
+// @Description Verify a Paystack payment
+// @Tags payments
+// @Accept json
+// @Produce json
+// @Param reference query string true "Reference"
+// @Success 200 {object} gin.H "Payment verified successfully"
+// @Failure 400 {object} gin.H "Invalid reference"
+// @Failure 500 {object} gin.H "Failed to verify payment"
+// @Router /api/v1/payments/paystack/verify [get]
+func (ph *PaymentHandler) VerifyPaystackPayment(c *gin.Context) {
+    reference := c.Query("reference")
+
+    if reference == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid reference"})
+        return
+    }
+
+    if err := ph.PaymentService.VerifyPaystackPayment(c, reference); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify payment"})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"message": "Payment verified successfully"})
+}

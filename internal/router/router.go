@@ -10,6 +10,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
+	"github.com/rowjay007/event-bookie/config"
 )
 
 func SetupRouter(db *gorm.DB) *gin.Engine {
@@ -18,6 +19,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
+	
 
 	categoryRepo := repository.NewCategoryRepository(db)
 	categoryService := service.NewCategoryService(categoryRepo)
@@ -40,8 +42,11 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	bookingHandler := handlers.NewBookingHandler(bookingService)
 
 	paymentRepo := repository.NewPaymentRepository(db)
-	paymentService := paymentService.NewPaymentService(paymentRepo) 
-	paymentHandler := handlers.NewPaymentHandler(paymentService)
+	conf := config.NewConfig() 
+	paystackClient := paymentService.NewPaystackService(conf.PaystackTestKey) 
+	paymentSvc := paymentService.NewPaymentService(paymentRepo, *paystackClient) 
+	paymentHandler := handlers.NewPaymentHandler(paymentSvc)
+
 
 	r.GET("/", handlers.WelcomeHandler)
 	r.POST("/api/v1/signup", userHandler.CreateUser)
@@ -115,6 +120,13 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			paymentGroup.PUT("/:id", paymentHandler.UpdatePayment)
 			paymentGroup.DELETE("/:id", paymentHandler.DeletePayment)
 			paymentGroup.GET("", paymentHandler.GetAllPayments)
+		}
+
+		paystackGroup := apiV1.Group("/paystack") 
+		paystackGroup.Use(middleware.AuthMiddleware())
+		{
+			paystackGroup.POST("/initialize-payment", paymentHandler.InitializePaystackPayment)
+			paystackGroup.POST("/verify-payment", paymentHandler.VerifyPaystackPayment)
 		}
 
 		authGroup := apiV1.Group("/auth")
