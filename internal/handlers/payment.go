@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rowjay007/event-bookie/internal/models"
 	"github.com/rowjay007/event-bookie/internal/service/payment"
+	"github.com/rowjay007/event-bookie/pkg/utils"
 )
 
 type PaymentHandler struct {
@@ -28,19 +29,26 @@ func NewPaymentHandler(paymentService *payment.PaymentService) *PaymentHandler {
 // @Failure 400 {object} gin.H "Payment information is invalid"
 // @Failure 500 {object} gin.H "Failed to create payment"
 // @Router /api/v1/payments [post]
-func (ph *PaymentHandler) CreatePayment(c *gin.Context) {
-	var payment models.Payment
-	if err := c.ShouldBindJSON(&payment); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
 
-	if err := ph.PaymentService.CreatePayment(&payment); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+func (ph *PaymentHandler) CreateAdminPayment(c *gin.Context) {
+    var payment models.Payment
+    if err := c.ShouldBindJSON(&payment); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+        return
+    }
 
-	c.JSON(http.StatusCreated, payment)
+    referenceID, err := utils.GenerateAdminReferenceID()
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate reference ID"})
+        return
+    }
+
+    if err := ph.PaymentService.CreatePayment(&payment); err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusCreated, gin.H{"reference_id": referenceID})
 }
 
 // GetAllPayments godoc

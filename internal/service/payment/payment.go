@@ -1,5 +1,3 @@
-// payment_service.go
-
 package payment
 
 import (
@@ -10,7 +8,7 @@ import (
 
 type PaymentService struct {
     PaymentRepo    *repository.PaymentRepository
-    PaystackClient PaystackService
+    PaystackClient PaystackService // Change PaystackService to PaystackClient
 }
 
 func NewPaymentService(paymentRepo *repository.PaymentRepository, paystackClient PaystackService) *PaymentService {
@@ -44,7 +42,7 @@ func (ps *PaymentService) DeletePayment(id uint) error {
 }
 
 func (ps *PaymentService) InitializePaystackPayment(ctx context.Context, amount float64, email string, reference string) (string, error) {
-    return ps.PaystackClient.InitializePayment(ctx, amount, email, reference)
+    return ps.PaystackClient.InitializePayment(ctx, amount, email)
 }
 
 func (ps *PaymentService) VerifyPaystackPayment(ctx context.Context, reference string) error {

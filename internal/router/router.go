@@ -115,7 +115,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		paymentGroup := apiV1.Group("/payments")
 		paymentGroup.Use(middleware.AuthMiddleware())
 		{
-			paymentGroup.POST("", paymentHandler.CreatePayment)
+			paymentGroup.POST("", paymentHandler.CreateAdminPayment)
 			paymentGroup.GET("/:id", paymentHandler.GetPaymentByID)
 			paymentGroup.PUT("/:id", paymentHandler.UpdatePayment)
 			paymentGroup.DELETE("/:id", paymentHandler.DeletePayment)

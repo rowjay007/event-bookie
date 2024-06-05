@@ -12,29 +12,27 @@ import (
 var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 type Claims struct {
-	Email string `json:"email"`
-	Role  string `json:"role"` 
-	jwt.StandardClaims
+    Email string `json:"email"`
+    Role  string `json:"role"`
+    jwt.StandardClaims
 }
-
 
 func GenerateJWT(email, role string) (string, error) {
-	claims := &Claims{
-		Email: email,
-		Role:  role, 
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
-		},
-	}
+    claims := &Claims{
+        Email: email,
+        Role:  role,
+        StandardClaims: jwt.StandardClaims{
+            ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
+        },
+    }
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	tokenString, err := token.SignedString(jwtSecret)
-	if err != nil {
-		return "", err
-	}
-	return tokenString, nil
+    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+    tokenString, err := token.SignedString(jwtSecret)
+    if err != nil {
+        return "", err
+    }
+    return tokenString, nil
 }
-
 
 func GenerateResetToken() (string, error) {
 	tokenBytes := make([]byte, 32)
