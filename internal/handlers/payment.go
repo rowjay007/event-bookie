@@ -12,7 +12,6 @@ import (
 
 type PaymentHandler struct {
 	PaymentService *payment.PaymentService
-	
 }
 
 func NewPaymentHandler(paymentService *payment.PaymentService) *PaymentHandler {
@@ -30,7 +29,6 @@ func NewPaymentHandler(paymentService *payment.PaymentService) *PaymentHandler {
 // @Failure 400 {object} gin.H "Payment information is invalid"
 // @Failure 500 {object} gin.H "Failed to create payment"
 // @Router /api/v1/payments [post]
-
 func (ph *PaymentHandler) CreateAdminPayment(c *gin.Context) {
     var payment models.Payment
     if err := c.ShouldBindJSON(&payment); err != nil {
@@ -52,7 +50,6 @@ func (ph *PaymentHandler) CreateAdminPayment(c *gin.Context) {
 
     c.JSON(http.StatusCreated, gin.H{"reference_id": referenceID, "payment": payment})
 }
-
 
 // GetAllPayments godoc
 // @Summary Get all payments
@@ -200,68 +197,65 @@ func (ph *PaymentHandler) DeletePayment(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Payment deleted successfully"})
 }
 
-// InitializePaystackPayment godoc
-// @Summary Initialize a Paystack payment
-// @Description Initialize a Paystack payment
+// InitializePayment godoc
+// @Summary Initialize a payment
+// @Description Initialize a payment
 // @Tags payments
 // @Accept json
 // @Produce json
-// @Param amount query float64 true "Amount"
-// @Param email query string true "Email"
-// @Success 200 {object} gin.H "Authorization URL and Reference ID"
-// @Failure 400 {object} gin.H "Invalid parameters"
+// @Param amount query int true "Payment amount"
+// @Param email query string true "Customer email"
+// @Success 200 {object} payment.PaymentResponse
+// @Failure 400 {object} gin.H "Invalid request parameters"
 // @Failure 500 {object} gin.H "Failed to initialize payment"
-// @Router /api/v1/payments/paystack [post]
-func (ph *PaymentHandler) InitializePaystackPayment(c *gin.Context) {
-    var request struct {
-        Amount float64 `json:"amount" binding:"required"`
-        Email  string  `json:"email" binding:"required"`
-    }
+// @Router /api/v1/paystack/initialize-payment [post]
+func (ph *PaymentHandler) InitializePayment(c *gin.Context) {
+	var requestBody struct {
+		Amount int64  `json:"amount"`
+		Email  string `json:"email"`
+	}
 
-    if err := c.ShouldBindJSON(&request); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	if err := c.BindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
 
-    referenceID, err := utils.GeneratePaystackReferenceID()
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate reference ID"})
-        return
-    }
+	amount := requestBody.Amount
+	email := requestBody.Email
 
-    authorizationURL, err := ph.PaymentService.InitializePaystackPayment(c, request.Amount, request.Email, referenceID)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
+	if amount <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid amount"})
+		return
+	}
 
-    c.JSON(http.StatusOK, gin.H{"authorization_url": authorizationURL, "reference": referenceID})
+	response, err := ph.PaymentService.InitiatePayment(amount, email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to initialize payment"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
-
-// VerifyPaystackPayment godoc
-// @Summary Verify a Paystack payment
-// @Description Verify a Paystack payment
+// VerifyPayment godoc
+// @Summary Verify a payment
+// @Description Verify a payment using the payment reference
 // @Tags payments
-// @Accept json
 // @Produce json
-// @Param reference query string true "Reference"
-// @Success 200 {object} gin.H "Payment verified successfully"
-// @Failure 400 {object} gin.H "Invalid reference"
+// @Param reference_id query string true "Payment reference ID"
+// @Success 200 {object} payment.PaymentVerificationResponse
+// @Failure 400 {object} gin.H "Invalid reference ID"
+// @Failure 404 {object} gin.H "Payment not found"
 // @Failure 500 {object} gin.H "Failed to verify payment"
-// @Router /api/v1/payments/paystack/verify [get]
-func (ph *PaymentHandler) VerifyPaystackPayment(c *gin.Context) {
-    reference := c.Query("reference")
+// @Router /api/v1/paystack/verify-payment/:reference [get]
+func (ph *PaymentHandler) VerifyPayment(c *gin.Context) {
+    reference := c.Param("reference")
 
-    if reference == "" {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid reference"})
+    response, err := ph.PaymentService.VerifyPayment(reference)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify payment"})
         return
     }
 
-    if err := ph.PaymentService.VerifyPaystackPayment(c, reference); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-        return
-    }
-
-    c.JSON(http.StatusOK, gin.H{"message": "Payment verified successfully"})
+    c.JSON(http.StatusOK, response)
 }

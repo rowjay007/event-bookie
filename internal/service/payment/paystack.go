@@ -1,114 +1,88 @@
 package payment
 
 import (
-	"bytes"
-	"context"
-	"encoding/json"
-	"fmt"
-	"net/http"
-	"time"
+    "encoding/json"
+    "errors"
+    "fmt"
+
+    "github.com/go-resty/resty/v2"
+    "github.com/rowjay007/event-bookie/config"
 )
 
-type PaystackService struct {
-	liveKey    string
-	testKey    string
-	useLiveKey bool
-	client     *http.Client
+type PaystackClient struct {
+    client *resty.Client
 }
 
-func NewPaystackService(liveKey, testKey string, useLiveKey bool) *PaystackService {
-	return &PaystackService{
-		liveKey:    liveKey,
-		testKey:    testKey,
-		useLiveKey: useLiveKey,
-		client:     &http.Client{Timeout: 10 * time.Second},
-	}
+type PaymentResponse struct {
+    Status  bool   `json:"status"`
+    Message string `json:"message"`
+    Data    struct {
+        AuthorizationURL string `json:"authorization_url"`
+        AccessCode       string `json:"access_code"`
+        Reference        string `json:"reference"`
+    } `json:"data"`
 }
 
-func (p *PaystackService) getSecretKey() string {
-	if p.useLiveKey {
-		return p.liveKey
-	}
-	return p.testKey
+type PaymentVerificationResponse struct {
+    Status  bool   `json:"status"`
+    Message string `json:"message"`
+    Data    struct {
+        Amount    int64  `json:"amount"`
+        Reference string `json:"reference"`
+        Status    string `json:"status"`
+    } `json:"data"`
 }
 
-func (p *PaystackService) InitializePayment(ctx context.Context, amount float64, email string, reference string) (string, error) {
-	url := "https://api.paystack.co/transaction/initialize"
-	payload := map[string]interface{}{
-		"reference": reference,
-		"amount":    int(amount * 100), 
-		"email":     email,
-	}
-	payloadBytes, err := json.Marshal(payload)
-	if err != nil {
-		return "", fmt.Errorf("error marshaling request payload: %w", err)
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(payloadBytes))
-	if err != nil {
-		return "", fmt.Errorf("error creating request: %w", err)
-	}
-	req.Header.Set("Authorization", "Bearer "+p.getSecretKey())
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := p.client.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("error making request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	var response struct {
-		Status  bool   `json:"status"`
-		Message string `json:"message"`
-		Data    struct {
-			AuthorizationURL string `json:"authorization_url"`
-		} `json:"data"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-		return "", fmt.Errorf("error decoding response: %w", err)
-	}
-
-	if !response.Status {
-		return "", fmt.Errorf("error initializing payment: %s", response.Message)
-	}
-
-	return response.Data.AuthorizationURL, nil
+func NewPaystackClient(config *config.Config) *PaystackClient {
+    client := resty.New()
+    client.SetHostURL("https://api.paystack.co")
+    client.SetHeader("Authorization", "Bearer "+config.PaystackTestKey)
+    return &PaystackClient{client: client}
 }
 
-func (ps *PaystackService) VerifyPayment(ctx context.Context, reference string) error {
-    url := fmt.Sprintf("https://api.paystack.co/transaction/verify/%s", reference)
+func (p *PaystackClient) InitializePayment(amount int64, email string) (*PaymentResponse, error) {
+    if amount <= 0 {
+        return nil, errors.New("Invalid amount. Amount must be greater than zero")
+    }
 
-    req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+    amountInKobo := amount * 100
+    payload := map[string]interface{}{
+        "amount":   amountInKobo,
+        "email":    email,
+        "currency": "NGN",
+    }
+
+    resp, err := p.client.R().
+        SetHeader("Content-Type", "application/json").
+        SetBody(payload).
+        Post("/transaction/initialize")
+
     if err != nil {
-        return fmt.Errorf("error creating request: %w", err)
+        return nil, err
     }
-    req.Header.Set("Authorization", "Bearer "+ps.getSecretKey())
 
-    resp, err := ps.client.Do(req)
+    var paymentResponse PaymentResponse
+    err = json.Unmarshal(resp.Body(), &paymentResponse)
     if err != nil {
-        return fmt.Errorf("error making request: %w", err)
-    }
-    defer resp.Body.Close()
-
-    var response struct {
-        Status  bool   `json:"status"`
-        Message string `json:"message"`
-        Data    struct {
-            Status          string `json:"status"`
-            GatewayResponse string `json:"gateway_response"`
-        } `json:"data"`
-    }
-    if err := json.NewDecoder(resp.Body).Decode(&response); err != nil {
-        return fmt.Errorf("error decoding response: %w", err)
+        return nil, err
     }
 
-    if !response.Status {
-        return fmt.Errorf("error verifying payment: %s", response.Message)
+    return &paymentResponse, nil
+}
+
+func (p *PaystackClient) VerifyPayment(reference string) (*PaymentVerificationResponse, error) {
+    resp, err := p.client.R().
+        Get(fmt.Sprintf("/transaction/verify/%s", reference))
+
+    if err != nil {
+        return nil, err
     }
 
-    if response.Data.Status != "success" {
-        return fmt.Errorf("payment verification failed: %s", response.Data.GatewayResponse)
+    var verificationResponse PaymentVerificationResponse
+    err = json.Unmarshal(resp.Body(), &verificationResponse)
+    if err != nil {
+        return nil, err
     }
 
-    return nil
+    return &verificationResponse, nil
 }

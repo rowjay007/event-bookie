@@ -7,7 +7,7 @@ import (
 	"github.com/rowjay007/event-bookie/internal/middleware"
 	"github.com/rowjay007/event-bookie/internal/repository"
 	"github.com/rowjay007/event-bookie/internal/service"
-	paymentService "github.com/rowjay007/event-bookie/internal/service/payment"
+	"github.com/rowjay007/event-bookie/internal/service/payment"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
@@ -42,9 +42,10 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 
 	paymentRepo := repository.NewPaymentRepository(db)
 	conf := config.NewConfig()
-	paystackClient := paymentService.NewPaystackService(conf.PaystackLiveKey, conf.PaystackTestKey, false) 
-	paymentSvc := paymentService.NewPaymentService(paymentRepo, *paystackClient)
-	paymentHandler := handlers.NewPaymentHandler(paymentSvc)
+	paystackClient := payment.NewPaystackClient(conf) 
+	paymentSvc := payment.NewPaymentService(paymentRepo, paystackClient)
+	paymentHandler := handlers.NewPaymentHandler(paymentSvc) 
+
 
 	r.GET("/", handlers.WelcomeHandler)
 	r.POST("/api/v1/signup", userHandler.CreateUser)
@@ -123,8 +124,8 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		paystackGroup := apiV1.Group("/paystack")
 		paystackGroup.Use(middleware.AuthMiddleware())
 		{
-			paystackGroup.POST("/initialize-payment", paymentHandler.InitializePaystackPayment)
-			paystackGroup.GET("/verify-payment", paymentHandler.VerifyPaystackPayment)
+			paystackGroup.POST("/initialize-payment", paymentHandler.InitializePayment)
+			paystackGroup.GET("/verify-payment/:reference", paymentHandler.VerifyPayment)
 		}
 
 		authGroup := apiV1.Group("/auth")

@@ -1361,6 +1361,104 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/paystack/initialize-payment": {
+            "post": {
+                "description": "Initialize a payment",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Initialize a payment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Payment amount",
+                        "name": "amount",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Customer email",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.PaymentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to initialize payment",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/paystack/verify-payment/:reference": {
+            "get": {
+                "description": "Verify a payment using the payment reference",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Verify a payment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Payment reference ID",
+                        "name": "reference_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.PaymentVerificationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid reference ID",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "404": {
+                        "description": "Payment not found",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to verify payment",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/secured/profile": {
             "get": {
                 "description": "Get user profile",
@@ -1960,13 +2058,10 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "payment_method": {
+                "reference": {
                     "type": "string"
                 },
                 "status": {
-                    "type": "string"
-                },
-                "transaction_id": {
                     "type": "string"
                 },
                 "updated_at": {
@@ -2023,6 +2118,56 @@ const docTemplate = `{
                 },
                 "updated_at": {
                     "type": "string"
+                }
+            }
+        },
+        "github_com_rowjay007_event-bookie_internal_service_payment.PaymentResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "access_code": {
+                            "type": "string"
+                        },
+                        "authorization_url": {
+                            "type": "string"
+                        },
+                        "reference": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_rowjay007_event-bookie_internal_service_payment.PaymentVerificationResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "amount": {
+                            "type": "integer"
+                        },
+                        "reference": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "boolean"
                 }
             }
         },
