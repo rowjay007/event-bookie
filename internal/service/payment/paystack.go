@@ -1,12 +1,13 @@
 package payment
 
 import (
-    "encoding/json"
-    "errors"
-    "fmt"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"strings"
 
-    "github.com/go-resty/resty/v2"
-    "github.com/rowjay007/event-bookie/config"
+	"github.com/go-resty/resty/v2"
+	"github.com/rowjay007/event-bookie/config"
 )
 
 type PaystackClient struct {
@@ -67,10 +68,15 @@ func (p *PaystackClient) InitializePayment(amount int64, email string) (*Payment
         return nil, err
     }
 
+    paymentResponse.Data.Reference = "PSTK_" + paymentResponse.Data.Reference
+
     return &paymentResponse, nil
 }
 
+
 func (p *PaystackClient) VerifyPayment(reference string) (*PaymentVerificationResponse, error) {
+    reference = strings.TrimPrefix(reference, "PSTK_")
+
     resp, err := p.client.R().
         Get(fmt.Sprintf("/transaction/verify/%s", reference))
 
@@ -86,3 +92,4 @@ func (p *PaystackClient) VerifyPayment(reference string) (*PaymentVerificationRe
 
     return &verificationResponse, nil
 }
+
