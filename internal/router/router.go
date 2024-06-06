@@ -2,15 +2,15 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/rowjay007/event-bookie/config"
 	"github.com/rowjay007/event-bookie/internal/handlers"
 	"github.com/rowjay007/event-bookie/internal/middleware"
 	"github.com/rowjay007/event-bookie/internal/repository"
 	"github.com/rowjay007/event-bookie/internal/service"
-	paymentService "github.com/rowjay007/event-bookie/internal/service/payment" 
+	paymentService "github.com/rowjay007/event-bookie/internal/service/payment"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/gorm"
-	"github.com/rowjay007/event-bookie/config"
 )
 
 func SetupRouter(db *gorm.DB) *gin.Engine {
@@ -20,7 +20,6 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	userService := service.NewUserService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
 	
-
 	categoryRepo := repository.NewCategoryRepository(db)
 	categoryService := service.NewCategoryService(categoryRepo)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
@@ -42,11 +41,10 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	bookingHandler := handlers.NewBookingHandler(bookingService)
 
 	paymentRepo := repository.NewPaymentRepository(db)
-	conf := config.NewConfig() 
-	paystackClient := paymentService.NewPaystackService(conf.PaystackTestKey) 
-	paymentSvc := paymentService.NewPaymentService(paymentRepo, *paystackClient) 
+	conf := config.NewConfig()
+	paystackClient := paymentService.NewPaystackService(conf.PaystackLiveKey, conf.PaystackTestKey, false) 
+	paymentSvc := paymentService.NewPaymentService(paymentRepo, *paystackClient)
 	paymentHandler := handlers.NewPaymentHandler(paymentSvc)
-
 
 	r.GET("/", handlers.WelcomeHandler)
 	r.POST("/api/v1/signup", userHandler.CreateUser)
@@ -122,11 +120,11 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			paymentGroup.GET("", paymentHandler.GetAllPayments)
 		}
 
-		paystackGroup := apiV1.Group("/paystack") 
+		paystackGroup := apiV1.Group("/paystack")
 		paystackGroup.Use(middleware.AuthMiddleware())
 		{
 			paystackGroup.POST("/initialize-payment", paymentHandler.InitializePaystackPayment)
-			paystackGroup.POST("/verify-payment", paymentHandler.VerifyPaystackPayment)
+			paystackGroup.GET("/verify-payment", paymentHandler.VerifyPaystackPayment)
 		}
 
 		authGroup := apiV1.Group("/auth")

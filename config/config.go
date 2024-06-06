@@ -3,27 +3,28 @@ package config
 import (
     "log"
     "os"
+    "strconv"
 )
 
 type Config struct {
-    Port           string
-    DBUser         string
-    DBPassword     string
-    DBHost         string
-    DBPort         string
-    DBName         string
+    Port            string
+    DBUser          string
+    DBPassword      string
+    DBHost          string
+    DBPort          string
+    DBName          string
     PaystackLiveKey string
     PaystackTestKey string
 }
 
 func NewConfig() *Config {
     config := &Config{
-        Port:           getEnv("PORT", "8080"),
-        DBUser:         getEnv("DB_USER", ""),
-        DBPassword:     getEnv("DB_PASSWORD", ""),
-        DBHost:         getEnv("DB_HOST", "localhost"),
-        DBPort:         getEnv("DB_PORT", "5432"),
-        DBName:         getEnv("DB_NAME", ""),
+        Port:            getEnv("PORT", "8080"),
+        DBUser:          getEnv("DB_USER", ""),
+        DBPassword:      getEnv("DB_PASSWORD", ""),
+        DBHost:          getEnv("DB_HOST", "localhost"),
+        DBPort:          getEnv("DB_PORT", "5432"),
+        DBName:          getEnv("DB_NAME", ""),
         PaystackLiveKey: getEnv("PAYSTACK_LIVE_KEY", ""),
         PaystackTestKey: getEnv("PAYSTACK_TEST_KEY", ""),
     }
@@ -43,6 +44,16 @@ func NewConfig() *Config {
 func getEnv(key, defaultValue string) string {
     if value, exists := os.LookupEnv(key); exists {
         return value
+    }
+    return defaultValue
+}
+
+func getEnvAsBool(key string, defaultValue bool) bool {
+    if value, exists := os.LookupEnv(key); exists {
+        boolValue, err := strconv.ParseBool(value)
+        if err == nil {
+            return boolValue
+        }
     }
     return defaultValue
 }

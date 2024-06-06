@@ -12,6 +12,7 @@ import (
 
 type PaymentHandler struct {
 	PaymentService *payment.PaymentService
+	
 }
 
 func NewPaymentHandler(paymentService *payment.PaymentService) *PaymentHandler {
@@ -37,6 +38,7 @@ func (ph *PaymentHandler) CreateAdminPayment(c *gin.Context) {
         return
     }
 
+    // Generate the reference ID
     referenceID, err := utils.GenerateAdminReferenceID()
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate reference ID"})
@@ -48,8 +50,9 @@ func (ph *PaymentHandler) CreateAdminPayment(c *gin.Context) {
         return
     }
 
-    c.JSON(http.StatusCreated, gin.H{"reference_id": referenceID})
+    c.JSON(http.StatusCreated, gin.H{"reference_id": referenceID, "payment": payment})
 }
+
 
 // GetAllPayments godoc
 // @Summary Get all payments
@@ -205,30 +208,36 @@ func (ph *PaymentHandler) DeletePayment(c *gin.Context) {
 // @Produce json
 // @Param amount query float64 true "Amount"
 // @Param email query string true "Email"
-// @Param reference query string true "Reference"
-// @Success 200 {string} string "Authorization URL"
+// @Success 200 {object} gin.H "Authorization URL and Reference ID"
 // @Failure 400 {object} gin.H "Invalid parameters"
 // @Failure 500 {object} gin.H "Failed to initialize payment"
-// @Router /api/v1/payments/paystack [get]
+// @Router /api/v1/payments/paystack [post]
 func (ph *PaymentHandler) InitializePaystackPayment(c *gin.Context) {
-    amountStr := c.Query("amount")
-    email := c.Query("email")
-    reference := c.Query("reference")
+    var request struct {
+        Amount float64 `json:"amount" binding:"required"`
+        Email  string  `json:"email" binding:"required"`
+    }
 
-    amount, err := strconv.ParseFloat(amountStr, 64)
-    if err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid amount"})
+    if err := c.ShouldBindJSON(&request); err != nil {
+        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
         return
     }
 
-    authorizationURL, err := ph.PaymentService.InitializePaystackPayment(c, amount, email, reference)
+    referenceID, err := utils.GeneratePaystackReferenceID()
     if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to initialize payment"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate reference ID"})
         return
     }
 
-    c.JSON(http.StatusOK, authorizationURL)
+    authorizationURL, err := ph.PaymentService.InitializePaystackPayment(c, request.Amount, request.Email, referenceID)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{"authorization_url": authorizationURL, "reference": referenceID})
 }
+
 
 // VerifyPaystackPayment godoc
 // @Summary Verify a Paystack payment
@@ -250,7 +259,7 @@ func (ph *PaymentHandler) VerifyPaystackPayment(c *gin.Context) {
     }
 
     if err := ph.PaymentService.VerifyPaystackPayment(c, reference); err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify payment"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
         return
     }
 

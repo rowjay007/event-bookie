@@ -8,7 +8,7 @@ import (
 
 type PaymentService struct {
     PaymentRepo    *repository.PaymentRepository
-    PaystackClient PaystackService // Change PaystackService to PaystackClient
+    PaystackClient PaystackService 
 }
 
 func NewPaymentService(paymentRepo *repository.PaymentRepository, paystackClient PaystackService) *PaymentService {
@@ -40,9 +40,8 @@ func (ps *PaymentService) UpdatePayment(payment *models.Payment) error {
 func (ps *PaymentService) DeletePayment(id uint) error {
     return ps.PaymentRepo.Delete(id)
 }
-
 func (ps *PaymentService) InitializePaystackPayment(ctx context.Context, amount float64, email string, reference string) (string, error) {
-    return ps.PaystackClient.InitializePayment(ctx, amount, email)
+    return ps.PaystackClient.InitializePayment(ctx, amount, email, reference)
 }
 
 func (ps *PaymentService) VerifyPaystackPayment(ctx context.Context, reference string) error {
