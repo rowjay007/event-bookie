@@ -8,12 +8,14 @@ import (
 type PaymentService struct {
 	PaymentRepo    *repository.PaymentRepository
 	PaystackClient *PaystackClient 
+	FlutterwaveClient *FlutterwaveClient
 }
 
-func NewPaymentService(paymentRepo *repository.PaymentRepository, paystackClient *PaystackClient) *PaymentService {
+func NewPaymentService(paymentRepo *repository.PaymentRepository, paystackClient *PaystackClient, FlutterwaveClient *FlutterwaveClient) *PaymentService {
 	return &PaymentService{
 		PaymentRepo:    paymentRepo,
 		PaystackClient: paystackClient, 
+		FlutterwaveClient: FlutterwaveClient,
 	}
 }
 func (ps *PaymentService) CreatePayment(payment *models.Payment) error {
@@ -44,4 +46,12 @@ func (ps *PaymentService) InitiatePaystackPayment(amount int64, email string) (*
 
 func (ps *PaymentService) VerifyPaystackPayment(reference string) (*PaymentVerificationResponse, error) {
 	return ps.PaystackClient.VerifyPaystackPayment(reference)
+}
+
+func (ps *PaymentService) InitiateFlutterwavePayment(amount int64, email, txRef string) (*FlutterwavePaymentResponse, error) {
+	return ps.FlutterwaveClient.InitializePayment(amount, email, txRef)
+}
+
+func (ps *PaymentService) VerifyFlutterwavePayment(txRef string) (*FlutterwavePaymentVerificationResponse, error) {
+	return ps.FlutterwaveClient.VerifyPayment(txRef)
 }

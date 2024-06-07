@@ -19,6 +19,7 @@ require (
 )
 
 require (
+	github.com/Flutterwave/Go-v2 v0.0.0-20220227000759-c0b94887bf0b // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/bytedance/sonic v1.11.7 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect

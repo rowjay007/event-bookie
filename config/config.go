@@ -15,6 +15,8 @@ type Config struct {
     DBName          string
     PaystackLiveKey string
     PaystackTestKey string
+    FlutterwaveLiveKey string
+    FlutterwaveTestKey string
 }
 
 func NewConfig() *Config {
@@ -27,6 +29,8 @@ func NewConfig() *Config {
         DBName:          getEnv("DB_NAME", ""),
         PaystackLiveKey: getEnv("PAYSTACK_LIVE_KEY", ""),
         PaystackTestKey: getEnv("PAYSTACK_TEST_KEY", ""),
+        FlutterwaveLiveKey: getEnv("FLUTTERWAVE_LIVE_KEY", ""),
+        FlutterwaveTestKey: getEnv("FLUTTERWAVE_TEST_KEY", ""),
     }
 
     checkEnv("PORT")
@@ -37,6 +41,8 @@ func NewConfig() *Config {
     checkEnv("DB_NAME")
     checkEnv("PAYSTACK_LIVE_KEY")
     checkEnv("PAYSTACK_TEST_KEY")
+    checkEnv("FLUTTERWAVE_LIVE_KEY")
+    checkEnv("FLUTTERWAVE_TEST_KEY")
 
     return config
 }

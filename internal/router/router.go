@@ -41,10 +41,10 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 	bookingHandler := handlers.NewBookingHandler(bookingService)
 
 	paymentRepo := repository.NewPaymentRepository(db)
-	conf := config.NewConfig()
-	paystackClient := payment.NewPaystackClient(conf) 
-	paymentSvc := payment.NewPaymentService(paymentRepo, paystackClient)
-	paymentHandler := handlers.NewPaymentHandler(paymentSvc) 
+	paystackClient := payment.NewPaystackClient(config.NewConfig())
+	flutterwaveClient := payment.NewFlutterwaveClient(config.NewConfig())
+	paymentService := payment.NewPaymentService(paymentRepo, paystackClient, flutterwaveClient)
+	paymentHandler := handlers.NewPaymentHandler(paymentService)
 
 
 	r.GET("/", handlers.WelcomeHandler)
@@ -127,6 +127,14 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 			paystackGroup.POST("/initialize-payment", paymentHandler.InitializePaystackPayment)
 			paystackGroup.GET("/verify-payment/:reference", paymentHandler.VerifyPaystackPayment)
 		}
+
+		flutterwaveGroup := apiV1.Group("/flutterwave")
+		flutterwaveGroup.Use(middleware.AuthMiddleware())
+		{
+			flutterwaveGroup.POST("/initialize-payment", paymentHandler.InitializeFlutterwavePayment)
+			flutterwaveGroup.GET("/verify-payment/:reference", paymentHandler.VerifyFlutterwavePayment)
+		}
+
 
 		authGroup := apiV1.Group("/auth")
 		{

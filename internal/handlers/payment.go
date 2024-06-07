@@ -259,3 +259,45 @@ func (ph *PaymentHandler) VerifyPaystackPayment(c *gin.Context) {
 
     c.JSON(http.StatusOK, response)
 }
+
+
+func (ph *PaymentHandler) InitializeFlutterwavePayment(c *gin.Context) {
+	var requestBody struct {
+		Amount int64  `json:"amount"`
+		Email  string `json:"email"`
+	}
+
+	if err := c.BindJSON(&requestBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		return
+	}
+
+	amount := requestBody.Amount
+	email := requestBody.Email
+
+	txRef, err := utils.GenerateReferenceID("FLW")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate reference ID"})
+		return
+	}
+
+	response, err := ph.PaymentService.InitiateFlutterwavePayment(amount, email, txRef)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to initiate payment"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+func (ph *PaymentHandler) VerifyFlutterwavePayment(c *gin.Context) {
+	txRef := c.Param("reference")
+
+	response, err := ph.PaymentService.VerifyFlutterwavePayment(txRef)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify payment"})
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
+}
