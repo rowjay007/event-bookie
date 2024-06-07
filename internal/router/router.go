@@ -124,8 +124,8 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		paystackGroup := apiV1.Group("/paystack")
 		paystackGroup.Use(middleware.AuthMiddleware())
 		{
-			paystackGroup.POST("/initialize-payment", paymentHandler.InitializePayment)
-			paystackGroup.GET("/verify-payment/:reference", paymentHandler.VerifyPayment)
+			paystackGroup.POST("/initialize-payment", paymentHandler.InitializePaystackPayment)
+			paystackGroup.GET("/verify-payment/:reference", paymentHandler.VerifyPaystackPayment)
 		}
 
 		authGroup := apiV1.Group("/auth")

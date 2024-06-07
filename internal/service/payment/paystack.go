@@ -41,7 +41,7 @@ func NewPaystackClient(config *config.Config) *PaystackClient {
     return &PaystackClient{client: client}
 }
 
-func (p *PaystackClient) InitializePayment(amount int64, email string) (*PaymentResponse, error) {
+func (p *PaystackClient) InitializePaystackPayment(amount int64, email string) (*PaymentResponse, error) {
     if amount <= 0 {
         return nil, errors.New("Invalid amount. Amount must be greater than zero")
     }
@@ -74,7 +74,7 @@ func (p *PaystackClient) InitializePayment(amount int64, email string) (*Payment
 }
 
 
-func (p *PaystackClient) VerifyPayment(reference string) (*PaymentVerificationResponse, error) {
+func (p *PaystackClient) VerifyPaystackPayment(reference string) (*PaymentVerificationResponse, error) {
     reference = strings.TrimPrefix(reference, "PSTK_")
 
     resp, err := p.client.R().

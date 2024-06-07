@@ -38,10 +38,10 @@ func (ps *PaymentService) UpdatePayment(payment *models.Payment) error {
 func (ps *PaymentService) DeletePayment(id uint) error {
     return ps.PaymentRepo.Delete(id)
 }
-func (ps *PaymentService) InitiatePayment(amount int64, email string) (*PaymentResponse, error) {
-	return ps.PaystackClient.InitializePayment(amount, email)
+func (ps *PaymentService) InitiatePaystackPayment(amount int64, email string) (*PaymentResponse, error) {
+	return ps.PaystackClient.InitializePaystackPayment(amount, email)
 }
 
-func (ps *PaymentService) VerifyPayment(reference string) (*PaymentVerificationResponse, error) {
-	return ps.PaystackClient.VerifyPayment(reference)
+func (ps *PaymentService) VerifyPaystackPayment(reference string) (*PaymentVerificationResponse, error) {
+	return ps.PaystackClient.VerifyPaystackPayment(reference)
 }
