@@ -18,5 +18,8 @@ func GenerateAdminReferenceID() (string, error) {
 }
 
 func GeneratePaystackReferenceID() (string, error) {
-	return GenerateReferenceID("PSTK")
+	return GenerateReferenceID("PST")
+}
+func GenerateFlutterwaveReferenceID() (string, error) {
+	return GenerateReferenceID("FLW")
 }

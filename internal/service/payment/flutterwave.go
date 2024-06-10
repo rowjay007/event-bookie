@@ -1,12 +1,12 @@
 package payment
 
 import (
-	"encoding/json"
-	"errors"
-	"fmt"
+    "encoding/json"
+    "errors"
+    "fmt"
 
-	"github.com/go-resty/resty/v2"
-	"github.com/rowjay007/event-bookie/config"
+    "github.com/go-resty/resty/v2"
+    "github.com/rowjay007/event-bookie/config"
 )
 
 type FlutterwaveClient struct {

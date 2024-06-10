@@ -17,6 +17,7 @@ type Config struct {
     PaystackTestKey string
     FlutterwaveLiveKey string
     FlutterwaveTestKey string
+    FlutterwaveEncryptionKey string
 }
 
 func NewConfig() *Config {
@@ -31,6 +32,7 @@ func NewConfig() *Config {
         PaystackTestKey: getEnv("PAYSTACK_TEST_KEY", ""),
         FlutterwaveLiveKey: getEnv("FLUTTERWAVE_LIVE_KEY", ""),
         FlutterwaveTestKey: getEnv("FLUTTERWAVE_TEST_KEY", ""),
+        FlutterwaveEncryptionKey: getEnv("FLUTTERWAVE_ENCRYPTION_KEY", ""),
     }
 
     checkEnv("PORT")
@@ -43,6 +45,7 @@ func NewConfig() *Config {
     checkEnv("PAYSTACK_TEST_KEY")
     checkEnv("FLUTTERWAVE_LIVE_KEY")
     checkEnv("FLUTTERWAVE_TEST_KEY")
+    checkEnv("FLUTTERWAVE_ENCRYPTION_KEY")
 
     return config
 }

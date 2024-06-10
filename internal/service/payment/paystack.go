@@ -14,7 +14,7 @@ type PaystackClient struct {
     client *resty.Client
 }
 
-type PaymentResponse struct {
+type PaystackPaymentResponse struct {
     Status  bool   `json:"status"`
     Message string `json:"message"`
     Data    struct {
@@ -24,7 +24,7 @@ type PaymentResponse struct {
     } `json:"data"`
 }
 
-type PaymentVerificationResponse struct {
+type PaystackVerificationResponse struct {
     Status  bool   `json:"status"`
     Message string `json:"message"`
     Data    struct {
@@ -41,7 +41,7 @@ func NewPaystackClient(config *config.Config) *PaystackClient {
     return &PaystackClient{client: client}
 }
 
-func (p *PaystackClient) InitializePaystackPayment(amount int64, email string) (*PaymentResponse, error) {
+func (p *PaystackClient) InitializePaystackPayment(amount int64, email string) (*PaystackPaymentResponse, error) {
     if amount <= 0 {
         return nil, errors.New("Invalid amount. Amount must be greater than zero")
     }
@@ -62,20 +62,20 @@ func (p *PaystackClient) InitializePaystackPayment(amount int64, email string) (
         return nil, err
     }
 
-    var paymentResponse PaymentResponse
-    err = json.Unmarshal(resp.Body(), &paymentResponse)
+    var paystackPaymentResponse PaystackPaymentResponse
+    err = json.Unmarshal(resp.Body(), &paystackPaymentResponse)
     if err != nil {
         return nil, err
     }
 
-    paymentResponse.Data.Reference = "PSTK_" + paymentResponse.Data.Reference
+    paystackPaymentResponse.Data.Reference = "PST_" + paystackPaymentResponse.Data.Reference
 
-    return &paymentResponse, nil
+    return &paystackPaymentResponse, nil
 }
 
 
-func (p *PaystackClient) VerifyPaystackPayment(reference string) (*PaymentVerificationResponse, error) {
-    reference = strings.TrimPrefix(reference, "PSTK_")
+func (p *PaystackClient) VerifyPaystackPayment(reference string) (*PaystackVerificationResponse, error) {
+    reference = strings.TrimPrefix(reference, "PST_")
 
     resp, err := p.client.R().
         Get(fmt.Sprintf("/transaction/verify/%s", reference))
@@ -84,7 +84,7 @@ func (p *PaystackClient) VerifyPaystackPayment(reference string) (*PaymentVerifi
         return nil, err
     }
 
-    var verificationResponse PaymentVerificationResponse
+    var verificationResponse PaystackVerificationResponse
     err = json.Unmarshal(resp.Body(), &verificationResponse)
     if err != nil {
         return nil, err
