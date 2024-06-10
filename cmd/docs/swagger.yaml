@@ -761,6 +761,40 @@ paths:
       summary: Update an existing event
       tags:
       - Events
+  /api/v1/flutterwave/initialize-payment:
+    post:
+      consumes:
+      - application/json
+      description: Initialize a payment
+      parameters:
+      - description: Payment amount
+        in: query
+        name: amount
+        required: true
+        type: integer
+      - description: Customer email
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.PaymentResponse'
+        "400":
+          description: Invalid request parameters
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Failed to initialize payment
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Initialize a payment
+      tags:
+      - payments
   /api/v1/organizers:
     get:
       consumes:
