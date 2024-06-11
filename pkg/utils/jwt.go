@@ -44,9 +44,7 @@ func GenerateResetToken() (string, error) {
 }
 
 func ParseToken(tokenString string) (*Claims, error) {
-	// Parse the token with the custom claims struct
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		// Check the token signing method
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
