@@ -132,7 +132,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		flutterwaveGroup.Use(middleware.AuthMiddleware())
 		{
 			flutterwaveGroup.POST("/initialize-payment", paymentHandler.InitializeFlutterwavePayment)
-			flutterwaveGroup.GET("/verify-payment/:reference", paymentHandler.VerifyFlutterwavePayment)
+			flutterwaveGroup.GET("/verify-payment/:transaction_id", paymentHandler.VerifyFlutterwavePayment)
 		}
 
 
