@@ -125,7 +125,7 @@ func SetupRouter(db *gorm.DB) *gin.Engine {
 		paystackGroup.Use(middleware.AuthMiddleware())
 		{
 			paystackGroup.POST("/initialize-payment", paymentHandler.InitializePaystackPayment)
-			paystackGroup.GET("/verify-payment/:reference", paymentHandler.VerifyPaystackPayment)
+			paystackGroup.GET("/verify-payment/:reference_id", paymentHandler.VerifyPaystackPayment)
 		}
 
 		flutterwaveGroup := apiV1.Group("/flutterwave")

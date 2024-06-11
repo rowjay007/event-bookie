@@ -41,18 +41,19 @@ func (ps *PaymentService) UpdatePayment(payment *models.Payment) error {
 func (ps *PaymentService) DeletePayment(id uint) error {
     return ps.PaymentRepo.Delete(id)
 }
-func (ps *PaymentService) InitiatePaystackPayment(amount int64, email string) (*PaystackPaymentResponse, error) {
-	return ps.PaystackClient.InitializePaystackPayment(amount, email)
+func (ps *PaymentService) InitiatePaystackPayment(amount int64, email, referenceID string) (*PaystackPaymentResponse, error) {
+	return ps.PaystackClient.InitializePaystackPayment(amount, email, referenceID)
 }
 
-func (ps *PaymentService) VerifyPaystackPayment(reference string) (*PaystackVerificationResponse, error) {
-	return ps.PaystackClient.VerifyPaystackPayment(reference)
+func (ps *PaymentService) VerifyPaystackPayment(referenceID string) (*PaystackVerificationResponse, error) {
+	return ps.PaystackClient.VerifyPaystackPayment(referenceID)
 }
 
-func (ps *PaymentService) InitiateFlutterwavePayment(amount int64, email, txRef string) (*FlutterwavePaymentResponse, error) {
-	return ps.FlutterwaveClient.InitializePayment(amount, email, txRef)
+func (ps *PaymentService) InitiateFlutterwavePayment(amount int64, email, referenceID string) (*FlutterwavePaymentResponse, error) {
+	return ps.FlutterwaveClient.InitializePayment(amount, email, referenceID)
 }
 
-func (ps *PaymentService) VerifyFlutterwavePayment(txRef string) (*FlutterwavePaymentVerificationResponse, error) {
-	return ps.FlutterwaveClient.VerifyPayment(txRef)
+func (ps *PaymentService) VerifyFlutterwavePayment(referenceID string) (*FlutterwavePaymentVerificationResponse, error) {
+	return ps.FlutterwaveClient.VerifyPayment(referenceID)
 }
+

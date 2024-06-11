@@ -204,7 +204,7 @@ func (ph *PaymentHandler) DeletePayment(c *gin.Context) {
 // @Produce json
 // @Param amount query int true "Payment amount"
 // @Param email query string true "Customer email"
-// @Success 200 {object} payment.PaymentResponse
+// @Success 200 {object} payment.PaystackPaymentResponse
 // @Failure 400 {object} gin.H "Invalid request parameters"
 // @Failure 500 {object} gin.H "Failed to initialize payment"
 // @Router /api/v1/paystack/initialize-payment [post]
@@ -227,7 +227,13 @@ func (ph *PaymentHandler) InitializePaystackPayment(c *gin.Context) {
 		return
 	}
 
-	response, err := ph.PaymentService.InitiatePaystackPayment(amount, email)
+	refID, err := utils.GeneratePaystackReferenceID()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate reference ID"})
+		return
+	}
+
+	response, err := ph.PaymentService.InitiatePaystackPayment(amount, email, refID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to initialize payment"})
 		return
@@ -242,15 +248,15 @@ func (ph *PaymentHandler) InitializePaystackPayment(c *gin.Context) {
 // @Tags payments
 // @Produce json
 // @Param reference_id query string true "Payment reference ID"
-// @Success 200 {object} payment.PaymentVerificationResponse
+// @Success 200 {object} payment.PaystackVerificationResponse
 // @Failure 400 {object} gin.H "Invalid reference ID"
 // @Failure 404 {object} gin.H "Payment not found"
 // @Failure 500 {object} gin.H "Failed to verify payment"
-// @Router /api/v1/paystack/verify-payment/:reference [get]
+// @Router /api/v1/paystack/verify-payment/:reference_id [get]
 func (ph *PaymentHandler) VerifyPaystackPayment(c *gin.Context) {
-    reference := c.Param("reference")
+    referenceID := c.Param("reference_id")
 
-    response, err := ph.PaymentService.VerifyPaystackPayment(reference)
+    response, err := ph.PaymentService.VerifyPaystackPayment(referenceID)
     if err != nil {
         c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify payment"})
         return
@@ -258,6 +264,7 @@ func (ph *PaymentHandler) VerifyPaystackPayment(c *gin.Context) {
 
     c.JSON(http.StatusOK, response)
 }
+
 
 func (ph *PaymentHandler) InitializeFlutterwavePayment(c *gin.Context) {
 	var requestBody struct {
@@ -273,22 +280,32 @@ func (ph *PaymentHandler) InitializeFlutterwavePayment(c *gin.Context) {
 	amount := requestBody.Amount
 	email := requestBody.Email
 
-	txRef, err := utils.GenerateFlutterwaveReferenceID()
+	refID, err := utils.GenerateFlutterwaveReferenceID()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate reference ID"})
 		return
 	}
 
-	response, err := ph.PaymentService.InitiateFlutterwavePayment(amount, email, txRef)
+	response, err := ph.PaymentService.InitiateFlutterwavePayment(amount, email, refID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to initiate payment"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to initialize payment"})
 		return
 	}
 
 	c.JSON(http.StatusOK, response)
 }
 
-// Verify Flutterwave Payment
+// VerifyFlutterwavePayment godoc
+// @Summary Verify a payment
+// @Description Verify a payment using the payment reference
+// @Tags payments
+// @Produce json
+// @Param transaction_id query string true "Payment reference ID"
+// @Success 200 {object} payment.PaymentVerificationResponse
+// @Failure 400 {object} gin.H "Invalid reference ID"
+// @Failure 404 {object} gin.H "Payment not found"
+// @Failure 500 {object} gin.H "Failed to verify payment"
+// @Router /api/v1/payments/verify-flutterwave/:transaction_id [get]
 func (ph *PaymentHandler) VerifyFlutterwavePayment(c *gin.Context) {
 	txRef := c.Param("transaction_id")
 

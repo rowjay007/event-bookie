@@ -44,11 +44,13 @@ func (f *FlutterwaveClient) InitializePayment(amount int64, email, txRef string)
         return nil, errors.New("invalid amount")
     }
 
+    localRedirectURL := "http://localhost:8080/api/v1/flutterwave/redirect"
+
     payload := map[string]interface{}{
         "tx_ref":        txRef,
         "amount":        amount,
         "currency":      "NGN",
-        "redirect_url":  "http://your-redirect-url.com",
+        "redirect_url":  localRedirectURL,
         "payment_type":  "card",
         "customer": map[string]string{"email": email},
     }
