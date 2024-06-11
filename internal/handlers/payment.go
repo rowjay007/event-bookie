@@ -266,6 +266,18 @@ func (ph *PaymentHandler) VerifyPaystackPayment(c *gin.Context) {
 }
 
 
+// InitializeFlutterwavePayment godoc
+// @Summary Initialize a payment
+// @Description Initialize a payment
+// @Tags payments
+// @Accept json
+// @Produce json
+// @Param amount query int true "Payment amount"
+// @Param email query string true "Customer email"
+// @Success 200 {object} payment.FlutterwavePaymentResponse
+// @Failure 400 {object} gin.H "Invalid request parameters"
+// @Failure 500 {object} gin.H "Failed to initialize payment"
+// @Router /api/v1/flutterwave/initialize-payment [post]
 func (ph *PaymentHandler) InitializeFlutterwavePayment(c *gin.Context) {
 	var requestBody struct {
 		Amount int64  `json:"amount"`
@@ -301,7 +313,7 @@ func (ph *PaymentHandler) InitializeFlutterwavePayment(c *gin.Context) {
 // @Tags payments
 // @Produce json
 // @Param transaction_id query string true "Payment reference ID"
-// @Success 200 {object} payment.PaymentVerificationResponse
+// @Success 200 {object} payment.FlutterwavePaymentVerificationResponse
 // @Failure 400 {object} gin.H "Invalid reference ID"
 // @Failure 404 {object} gin.H "Payment not found"
 // @Failure 500 {object} gin.H "Failed to verify payment"

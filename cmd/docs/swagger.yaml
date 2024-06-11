@@ -116,7 +116,37 @@ definitions:
       updated_at:
         type: string
     type: object
-  github_com_rowjay007_event-bookie_internal_service_payment.PaymentResponse:
+  github_com_rowjay007_event-bookie_internal_service_payment.FlutterwavePaymentResponse:
+    properties:
+      data:
+        properties:
+          link:
+            type: string
+        type: object
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  github_com_rowjay007_event-bookie_internal_service_payment.FlutterwavePaymentVerificationResponse:
+    properties:
+      data:
+        properties:
+          amount:
+            type: integer
+          currency:
+            type: string
+          status:
+            type: string
+          tx_ref:
+            type: string
+        type: object
+      message:
+        type: string
+      status:
+        type: string
+    type: object
+  github_com_rowjay007_event-bookie_internal_service_payment.PaystackPaymentResponse:
     properties:
       data:
         properties:
@@ -132,7 +162,7 @@ definitions:
       status:
         type: boolean
     type: object
-  github_com_rowjay007_event-bookie_internal_service_payment.PaymentVerificationResponse:
+  github_com_rowjay007_event-bookie_internal_service_payment.PaystackVerificationResponse:
     properties:
       data:
         properties:
@@ -783,7 +813,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.PaymentResponse'
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.FlutterwavePaymentResponse'
         "400":
           description: Invalid request parameters
           schema:
@@ -1109,6 +1139,37 @@ paths:
       summary: Update a payment
       tags:
       - payments
+  /api/v1/payments/verify-flutterwave/:transaction_id:
+    get:
+      description: Verify a payment using the payment reference
+      parameters:
+      - description: Payment reference ID
+        in: query
+        name: transaction_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.FlutterwavePaymentVerificationResponse'
+        "400":
+          description: Invalid reference ID
+          schema:
+            $ref: '#/definitions/gin.H'
+        "404":
+          description: Payment not found
+          schema:
+            $ref: '#/definitions/gin.H'
+        "500":
+          description: Failed to verify payment
+          schema:
+            $ref: '#/definitions/gin.H'
+      summary: Verify a payment
+      tags:
+      - payments
   /api/v1/paystack/initialize-payment:
     post:
       consumes:
@@ -1131,7 +1192,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.PaymentResponse'
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.PaystackPaymentResponse'
         "400":
           description: Invalid request parameters
           schema:
@@ -1143,7 +1204,7 @@ paths:
       summary: Initialize a payment
       tags:
       - payments
-  /api/v1/paystack/verify-payment/:reference:
+  /api/v1/paystack/verify-payment/:reference_id:
     get:
       description: Verify a payment using the payment reference
       parameters:
@@ -1158,7 +1219,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.PaymentVerificationResponse'
+            $ref: '#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.PaystackVerificationResponse'
         "400":
           description: Invalid reference ID
           schema:

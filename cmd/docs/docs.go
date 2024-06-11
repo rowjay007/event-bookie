@@ -920,7 +920,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.PaymentResponse"
+                            "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.FlutterwavePaymentResponse"
                         }
                     },
                     "400": {
@@ -1282,6 +1282,53 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/payments/verify-flutterwave/:transaction_id": {
+            "get": {
+                "description": "Verify a payment using the payment reference",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "payments"
+                ],
+                "summary": "Verify a payment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Payment reference ID",
+                        "name": "transaction_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.FlutterwavePaymentVerificationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid reference ID",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "404": {
+                        "description": "Payment not found",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    },
+                    "500": {
+                        "description": "Failed to verify payment",
+                        "schema": {
+                            "$ref": "#/definitions/gin.H"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/payments/{id}": {
             "get": {
                 "description": "Get a payment by ID",
@@ -1445,7 +1492,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.PaymentResponse"
+                            "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.PaystackPaymentResponse"
                         }
                     },
                     "400": {
@@ -1463,7 +1510,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/paystack/verify-payment/:reference": {
+        "/api/v1/paystack/verify-payment/:reference_id": {
             "get": {
                 "description": "Verify a payment using the payment reference",
                 "produces": [
@@ -1486,7 +1533,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.PaymentVerificationResponse"
+                            "$ref": "#/definitions/github_com_rowjay007_event-bookie_internal_service_payment.PaystackVerificationResponse"
                         }
                     },
                     "400": {
@@ -2172,7 +2219,54 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rowjay007_event-bookie_internal_service_payment.PaymentResponse": {
+        "github_com_rowjay007_event-bookie_internal_service_payment.FlutterwavePaymentResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "link": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_rowjay007_event-bookie_internal_service_payment.FlutterwavePaymentVerificationResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "amount": {
+                            "type": "integer"
+                        },
+                        "currency": {
+                            "type": "string"
+                        },
+                        "status": {
+                            "type": "string"
+                        },
+                        "tx_ref": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "message": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_rowjay007_event-bookie_internal_service_payment.PaystackPaymentResponse": {
             "type": "object",
             "properties": {
                 "data": {
@@ -2197,7 +2291,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_rowjay007_event-bookie_internal_service_payment.PaymentVerificationResponse": {
+        "github_com_rowjay007_event-bookie_internal_service_payment.PaystackVerificationResponse": {
             "type": "object",
             "properties": {
                 "data": {
