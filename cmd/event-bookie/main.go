@@ -1,35 +1,28 @@
 package main
 
 import (
-    "context"
-    "database/sql"
-    "fmt"
-    "log"
-    "net/http"
-    "os"
-    "os/signal"
-    "syscall"
-    "time"
-
-    "github.com/joho/godotenv"
-    "github.com/rowjay007/event-bookie/config"
-    "github.com/rowjay007/event-bookie/internal/router"
-    "github.com/rowjay007/event-bookie/pkg/database"
-    "github.com/sirupsen/logrus"
-    _ "github.com/rowjay007/event-bookie/cmd/docs" 
-    "gorm.io/driver/postgres"
-    "gorm.io/gorm"
+	"context"
+	"database/sql"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+	"github.com/joho/godotenv"
+	_ "github.com/rowjay007/event-bookie/cmd/docs"
+	"github.com/rowjay007/event-bookie/config"
+	"github.com/rowjay007/event-bookie/internal/router"
+	"github.com/rowjay007/event-bookie/pkg/database"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/time/rate"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-// @title Event Bookie API
-// @version 1.0
-// @description The Event Bookie API is a powerful platform designed to streamline event management and booking processes. It provides a comprehensive set of features for creating, managing, and discovering events, handling bookings, managing venues, processing payments, and facilitating organizer interactions.
-// @termsOfService http://swagger.io/terms/
-// @license.name MIT
-// @license.url https://opensource.org/licenses/MIT
-//
-// @host localhost:8080
-// @BasePath /api/v1
+var limiter = rate.NewLimiter(rate.Limit(100), 60) 
+
 func main() {
     if err := godotenv.Load("../../.env"); err != nil {
         log.Fatalf("Error loading .env file: %v", err)
@@ -64,7 +57,7 @@ func main() {
 
     server := &http.Server{
         Addr:    ":" + port,
-        Handler: r,
+        Handler: rateLimitMiddleware(r), 
     }
 
     go func() {
@@ -106,4 +99,14 @@ func waitForShutdown(server *http.Server, logger *logrus.Logger) {
     }
 
     logger.Println("Server gracefully stopped")
+}
+
+func rateLimitMiddleware(handler http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        if !limiter.Allow() {
+            http.Error(w, "Too Many Requests", http.StatusTooManyRequests)
+            return
+        }
+        handler.ServeHTTP(w, r)
+    })
 }
